@@ -22,12 +22,13 @@ const createPuja = asynchanler(async (req, res) => {
     const uploadedImg = await cloudinary.uploader.upload(req.file.path, {
         folder: "Bharat One"
     })
+    const templeArray=temple.split(',');
     imageUrl=uploadedImg.secure_url;
     const newPuja=new pujaDB({
         name:name,
         cost:cost,
         description:description,
-        temple:temple,
+        temple:templeArray,
         image:imageUrl,
         based:based
     })
@@ -42,7 +43,7 @@ const createPuja = asynchanler(async (req, res) => {
 })
 const getbasedPuja=asynchanler(async(req,res)=>{
     const {based}=req.query;
-    const getAllPuja=pujaDB.find({based:based}).populate('temple');
+    const getAllPuja=await pujaDB.find({based:based}).populate('temple');
     if(getAllPuja){
         response.successResponst(res,getAllPuja,`Successfully fetched puja based on ${based}`);
     }
@@ -52,7 +53,7 @@ const getbasedPuja=asynchanler(async(req,res)=>{
 })
 const getLocationPuja=asynchanler(async(req,res)=>{
     const {location}=req.query;
-    const getAllPuja=pujaDB.find().populate('temple');
+    const getAllPuja=await pujaDB.find().populate('temple');
     if(getAllPuja){
         const fiteredData=getAllPuja.filter((puja)=>{
             return puja.temple.some(temp=>temp.location===location);

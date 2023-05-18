@@ -25,7 +25,7 @@ const pujaSchema=mongoose.Schema({
     },
     based:{
         type:String,
-        enum:['GOD-GODESSES','OCASSION','INDIVIDUAL'],
+        enum:['GOD-GODESSES','OCCASION','INDIVIDUAL'],
         
     }
 })

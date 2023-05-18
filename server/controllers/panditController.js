@@ -1,7 +1,7 @@
 const panditDB = require("../models/panditModel")
 const asynchandler = require("express-async-handler");
 const response = require("../middlewares/responseMiddleware");
-
+const cloudinary = require('../utils/cloudinary')
 const test = asynchandler(async (req, res) => {
     response.successResponst(res, '', 'Pandit routes established')
 })
@@ -12,13 +12,23 @@ const createPandit = asynchandler(async (req, res) => {
         response.validationError(res, "Fill in the details properly");
         return;
     }
+
+    var image = '';
+    if (req.file) {
+        const uploadedData = await cloudinary.uploader.upload(req.file.image, {
+            folder: "Bharat One"
+        })
+        image = uploadedData.secure_url
+    }
     const newPandit = new panditDB({
         name: name,
         location: location,
         exp: exp,
-        puja: puja
+        puja: puja,
+        image: image
     })
     const savedPandit = await newPandit.save();
+
     if (savedPandit) {
         response.successResponst(res, savedPandit, "Successfully saved the Pandit");
     }
@@ -58,6 +68,23 @@ const getPujaBasedPandit = asynchandler(async (req, res) => {
     else {
         response.internalServerError(res, "Not able to fetch the pandits")
     }
+})
+const availablepandit=asynchandler(async(req,res)=>{
+    const {date,time}=req.body;
+    const{location}=req.query;
+    const getAllPandit=await panditDB.find({ location: location });
+    if(getAllPandit){
+        const filtered=getAllPandit.filter((e)=>{
+            e.unavailableTiming.some(e=>{
+                return(e.date!==date&&e.time==time)
+            })
+        })
+        response.successResponst(res,filtered,"Successfully fetched the pandits")
+    }
+    else{
+        response.internalServerError(res,"Error in getting the pandits")
+    }
+
 })
 const updatePandit = asynchandler(async (req, res) => {
     const { id } = req.params;
@@ -120,4 +147,4 @@ const deletePandit = asynchandler(async (req, res) => {
         }
     }
 })
-module.exports = { test, createPandit, updatePandit, deletePandit, getAllPandit, getlocationPandit, getPujaBasedPandit };
+module.exports = { test, createPandit, updatePandit, deletePandit, getAllPandit, getlocationPandit, getPujaBasedPandit ,availablepandit};

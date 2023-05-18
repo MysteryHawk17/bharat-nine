@@ -18,10 +18,6 @@ const prasadSchema = mongoose.Schema({
         type: Number,
         required: true
     },
-    // itemsIncluded: {
-    //     type: Array,
-    //     required: true
-    // },
     itemsIncluded: [{
         type: String,
         required: true
