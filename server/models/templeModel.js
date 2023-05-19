@@ -11,7 +11,7 @@ const templeSchema=mongoose.Schema({
     },
     bookingData:[{
         date:{
-            type:Date
+            type:String
         },
         time:{
             type:String

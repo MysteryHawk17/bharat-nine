@@ -8,12 +8,15 @@ const bodyParser = require("body-parser");
 
 //routes imports
 const authRoutes = require("./routes/authRoutes");
-const prasadRoutes=require("./routes/prasadRoutes");
-const blogRoutes=require("./routes/blogRoutes");
-const quoteRoutes=require("./routes/quoteAdminRoutes");
-const templeRoutes=require("./routes/templeRoutes");
-const pujaRoutes=require("./routes/pujaRoutes");
-const panditRoutes=require("./routes/panditRoutes")
+const prasadRoutes = require("./routes/prasadRoutes");
+const blogRoutes = require("./routes/blogRoutes");
+const quoteRoutes = require("./routes/quoteAdminRoutes");
+const templeRoutes = require("./routes/templeRoutes");
+const pujaRoutes = require("./routes/pujaRoutes");
+const panditRoutes = require("./routes/panditRoutes")
+const prasadCheckoutRoutes = require("./routes/prasadCheckoutRoute");
+const pujaHistoryRoutes = require("./routes/pujaHistoryRoutes");
+const panditHistoryRoutes = require('./routes/panditHistoryRoutes');
 //middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -26,12 +29,15 @@ app.use(
 
 //route middlewares
 app.use("/api/auth", authRoutes);
-app.use("/api/prasad",prasadRoutes);
-app.use("/api/blog",blogRoutes)
-app.use("/api/quotes",quoteRoutes);
-app.use("/api/temple",templeRoutes)
-app.use("/api/puja",pujaRoutes);
-app.use("/api/pandit",panditRoutes);
+app.use("/api/prasad", prasadRoutes);
+app.use("/api/blog", blogRoutes)
+app.use("/api/quotes", quoteRoutes);
+app.use("/api/temple", templeRoutes)
+app.use("/api/puja", pujaRoutes);
+app.use("/api/pandit", panditRoutes);
+app.use('/api/checkout/prasad', prasadCheckoutRoutes);
+app.use('/api/checkout/puja', pujaHistoryRoutes)
+app.use('/api/checkout/pandit', panditHistoryRoutes);
 //server test route
 app.get("/", (req, res) => {
     res.status(200).json({ message: "bharat-one server is running" })

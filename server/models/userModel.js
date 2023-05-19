@@ -25,18 +25,6 @@ const userSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Cart"
     },//reference to cart created at the time of creation of the profile
-    pujaHistoryId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"PujaHistory"
-    },
-    panditHistoryId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"PanditHistory"
-    },
-    prasadHistoryId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"PrasadHistory"
-    },
     shippingAddress: [
         {
             address: {

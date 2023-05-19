@@ -11,12 +11,19 @@ const prasadHistorySchema=mongoose.Schema({
     address: {
         type: Object
     },
-    temple: {
-        type: String,
-    },
-    cost: {
-        type: Number
-    },
+    products: [
+        {
+            product: {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"Prasad"
+            },
+            quantity:{
+                type:Number,
+                required:true,
+                default:1
+            }
+        }
+    ],
     payment_mode: {
         type: String,
         enum: ["COD", "ONLINE"],
@@ -29,7 +36,7 @@ const prasadHistorySchema=mongoose.Schema({
     },
     order_status: {
         type: String,
-        enum: ["RESERVED", "COMPLETED", "CANCELLED", "CANCELLED BY ADMIN"],
+        enum: ["ORDERED", "COMPLETED", "CANCELLED", "CANCELLED BY ADMIN"],
         required: true,
         default: "RESERVED",
     },

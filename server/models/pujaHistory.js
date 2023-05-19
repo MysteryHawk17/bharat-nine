@@ -8,16 +8,20 @@ const pujaHistorySchema = mongoose.Schema({
     address: {
         type: Object
     },
+    puja: {
+        type: String
+    },
     mode: {
         type: String,
         enum: ['ONLINE', 'OFFLINE'],
         required: true
     },
     temple: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Temple"
     },
     date: {
-        type: Date,
+        type: String,
     },
     time: {
         type: String

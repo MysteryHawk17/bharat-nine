@@ -1,8 +1,5 @@
 const userDB = require("../models/userModel")
 const cartDB = require("../models/cartModel")
-const pujaHistoryDB=require("../models/pujaHistory")
-const panditHistoryDB=require("../models/panditHistory");
-const prasadHistoryDB=require("../models/prasadHistory");
 const response = require("../middlewares/responseMiddleware")
 const asynchandler = require("express-async-handler");
 const cloudinary = require("../utils/cloudinary")
@@ -22,21 +19,12 @@ const registerUser = asynchandler(async (req, res) => {
     }
     else {
         const newCart = await cartDB.create({});
-        const newPujaHistory = await pujaHistoryDB.create({});
-        const newPanditHistory=await panditHistoryDB.create({});
-        const newPrasadHistory=await prasadHistoryDB.create({});
         const salt = await bcrypt.genSalt(10);
         console.log(password)
         const hashPassword = await bcrypt.hash(password, salt);
         console.log(hashPassword);
-        if (newCart && newPujaHistory&&newPanditHistory&&newPrasadHistory) {
-            var displayURL = '';
-            if (req.file) {
-                const uploadedImg = await cloudinary.uploader.upload(req.file.path, {
-                    folder: "Bharat One"
-                })
-                displayURL = uploadedImg.secure_url;
-            }
+        if (newCart) {
+
 
 
             const newUser = new userDB({
@@ -44,14 +32,15 @@ const registerUser = asynchandler(async (req, res) => {
                 email: email,
                 password: hashPassword,
                 phone: phone == undefined ? '' : phone,
-                displayImage: displayURL == '' ? 'https://asset.cloudinary.com/dvlksubek/6b7279e45fa276aedde3413c95ecdde4' : displayURL,
                 cartId: newCart._id,
-                pujaHistoryId:newPujaHistory._id,
-                prasadHistoryId:newPrasadHistory._id,
-                panditHistoryId:newPanditHistory._id,
                 isAdmin: isAdmin ? isAdmin : false
             })
             const savedUser = await newUser.save();
+            const updatedCart = await cartDB.findByIdAndUpdate({ _id: savedUser.cartId }, {
+                userId: savedUser._id,
+                products: []
+            }, { new: true });
+            console.log(updatedCart);
             const token = jwt(savedUser._id);
             const { password, createdAt, updatedAt, ...other } = savedUser._doc;
 
