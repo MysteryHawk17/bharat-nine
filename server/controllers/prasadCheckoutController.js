@@ -23,17 +23,17 @@ const addToCart = asynchandler(async (req, res) => {
             }
             cart.prasad.splice(0, 0, product);
         }
-        else{
-        console.log(productIndex)
-        const removeItem = cart.prasad.splice(productIndex, 1);
-        const product = {
-            product: productId,
-            quantity: quantity
+        else {
+            console.log(productIndex)
+            const removeItem = cart.prasad.splice(productIndex, 1);
+            const product = {
+                product: productId,
+                quantity: quantity
+            }
+            if (quantity !== 0) {
+                cart.prasad.splice(productIndex, 0, product);
+            }
         }
-        if (quantity !== 0) {
-            cart.prasad.splice(productIndex, 0, product);
-        }
-    }
         const success = await cart.save();
         const cartF = await cartDB.findById({ _id: cartId });
         if (success && cartF) {
@@ -51,13 +51,18 @@ const getCartDetails = asynchandler(async (req, res) => {
     const cartId = req.user.cartId;
     console.log(cartId);
 
-    const cartDetails = await cartDB.findById({ _id: cartId });
-    if (cartDetails) {
-        response.successResponst(res, cartDetails, 'Successfully fetched the cart details');
-    }
-    else {
-        response.internalServerError(res, 'Unable to fetch the cart details');
-    }
+    cartDB.find({_id:cartId})
+        .populate('userId')
+        .populate('prasad.product')
+        .then((prasad) => {
+            console.log(prasad);
+            response.successResponst(res,prasad,"Success");
+            // Process the retrieved prasad data
+        })
+        .catch((err) => {
+            response.internalServerError(res,"Failed to fetch cart details")
+            // Handle the error appropriately
+        });
 
 })
 
@@ -73,7 +78,7 @@ const prasadCheckout = asynchandler(async (req, res) => {
         }
         else {
             const newHistoryItem = new prasadHistoryDB({
-                userId: user._id,
+                userId: id,
                 email: email,
                 address: address,
                 payment_mode: payment_mode,
@@ -101,14 +106,19 @@ const prasadCheckout = asynchandler(async (req, res) => {
 })
 const getPrasadHistory = asynchandler(async (req, res) => {
     const id = req.user._id;
-    const prasadHistoryItem = await prasadHistoryDB.find({ userId: id }).populate({ path: 'products.product', select: 'email address' })
-    console.log(prasadHistoryItem)
-    if (prasadHistoryItem) {
-        response.successResponst(res, prasadHistoryItem, 'Successfully fetched the item');
-    }
-    else {
-        response.internalServerError(res, "Error in fetching history");
-    }
+    prasadHistoryDB.find({ userId: id })
+        .populate('userId')
+        .populate('products.product')
+        .then((prasad) => {
+            console.log(prasad);
+            response.successResponst(res, prasad, "success")
+            // Process the retrieved prasad data
+        })
+        .catch((err) => {
+            console.error(err);
+            response.internalServerError(res,"Error in fetching history of the user");
+            // Handle the error appropriately
+        });
 })
 
 module.exports = { test, addToCart, prasadCheckout, getPrasadHistory, getCartDetails };
