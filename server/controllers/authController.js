@@ -24,9 +24,6 @@ const registerUser = asynchandler(async (req, res) => {
         const hashPassword = await bcrypt.hash(password, salt);
         console.log(hashPassword);
         if (newCart) {
-
-
-
             const newUser = new userDB({
                 displayName: displayName,
                 email: email,

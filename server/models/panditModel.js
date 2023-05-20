@@ -21,7 +21,7 @@ const panditSchema = mongoose.Schema({
     },
     unavailableTimings: [{
         date: {
-            type: Date
+            type: String
         },
         time: {
             type: String

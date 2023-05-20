@@ -4,7 +4,7 @@ const{checkLogin,checkAdmin}=require("../middlewares/authMiddleware");
 
 router.get("/test",test);
 router.post("/createhistory",checkLogin,addHistory);
-router.get("/gethistory/:id",checkLogin,getHistory);
+router.get("/gethistory",checkLogin,getHistory);
 router.get("/getallbookings",checkAdmin,getAllBookings);
 
 

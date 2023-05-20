@@ -1,14 +1,14 @@
 const { test, getCartDetails, addToCart, getPrasadHistory, prasadCheckout } = require("../controllers/prasadCheckoutController")
 
 const router=require("express").Router()
-
+const{checkLogin}=require("../middlewares/authMiddleware");
 
 
 router.get("/test",test);
-router.get("/getcart/:cartId",getCartDetails);
-router.post("/updatecart/:cartId",addToCart);
-router.get("/prasadhistory/:id",getPrasadHistory);
-router.post("/createhistory/prasad/:id",prasadCheckout);
+router.get("/getcart",checkLogin,getCartDetails);
+router.post("/updatecart",checkLogin,addToCart);
+router.get("/prasadhistory",checkLogin,getPrasadHistory);
+router.post("/createhistory/prasad",checkLogin,prasadCheckout);
 
 
 module.exports=router;

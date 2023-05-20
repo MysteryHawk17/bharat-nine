@@ -108,7 +108,7 @@ const updatePuja=asynchanler(async(req,res)=>{
             updateData.description=description
         }
         if(req.file){
-            const uploadedData=await cloudinary.uploader.upload(req.file.image,{
+            const uploadedData=await cloudinary.uploader.upload(req.file.path,{
                 folder:"Bharat One"
             })
             updateData.imageUrl=uploadedData.secure_url;

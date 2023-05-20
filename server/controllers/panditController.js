@@ -15,7 +15,7 @@ const createPandit = asynchandler(async (req, res) => {
 
     var image = '';
     if (req.file) {
-        const uploadedData = await cloudinary.uploader.upload(req.file.image, {
+        const uploadedData = await cloudinary.uploader.upload(req.file.path, {
             folder: "Bharat One"
         })
         image = uploadedData.secure_url
@@ -61,7 +61,7 @@ const getPujaBasedPandit = asynchandler(async (req, res) => {
     const getAllPandit = await panditDB.find({});
     if (getAllPandit) {
         const filtered = getAllPandit.filter((e) => {
-            return (e.puja.contains(puja));
+            return (e.puja.includes(puja));
         })
         response.successResponst(res, filtered, "Successfully fetched the pandits");
     }
@@ -69,20 +69,25 @@ const getPujaBasedPandit = asynchandler(async (req, res) => {
         response.internalServerError(res, "Not able to fetch the pandits")
     }
 })
-const availablepandit=asynchandler(async(req,res)=>{
-    const {date,time}=req.body;
-    const{location}=req.query;
-    const getAllPandit=await panditDB.find({ location: location });
-    if(getAllPandit){
-        const filtered=getAllPandit.filter((e)=>{
-            e.unavailableTiming.some(e=>{
-                return(e.date!==date&&e.time==time)
-            })
-        })
-        response.successResponst(res,filtered,"Successfully fetched the pandits")
+const availablepandit = asynchandler(async (req, res) => {
+    const { date, time } = req.body;
+    const { location } = req.query;
+    const fetchedPandit=await panditDB.find({
+        location:location,
+        unavailableTimings:{
+            $not:{
+                $elemMatch:{
+                    date:date,
+                    time:time
+                }
+            }
+        }
+    })
+    if(fetchedPandit){
+        response.successResponst(res,fetchedPandit,"Successfully fetched the pandits");
     }
     else{
-        response.internalServerError(res,"Error in getting the pandits")
+        response.internalServerError(res,"Error in fetching the pandit");
     }
 
 })
@@ -96,28 +101,42 @@ const updatePandit = asynchandler(async (req, res) => {
         if (findPandit) {
             const updateData = {};
             const { exp, puja, location } = req.body;
+
             if (exp) {
                 updateData.exp = exp;
-            }
-            if (puja) {
-                updateData.puja = puja;
             }
             if (location) {
                 updateData.location = location;
             }
             if (req.file) {
-                const uploadedData = await cloudinary.uploader.upload(req.file.image, {
+                const uploadedData = await cloudinary.uploader.upload(req.file.path, {
                     folder: "Bharat One"
                 })
+                
                 updateData.image = uploadedData.secure_url;
             }
 
             const updatedPandit = await panditDB.findByIdAndUpdate({ _id: id }, updateData, { new: true });
-            if (updatedPandit) {
-                response.successResponst(res, updatedPandit, "Successfully updated the pandit");
+
+            if (puja) {
+                const finalUpdate = await panditDB.findByIdAndUpdate({ _id: id }, {
+                    $push: { puja: puja }
+                }, { new: true });
+
+                if (updatedPandit && finalUpdate) {
+                    response.successResponst(res, finalUpdate, "Successfully updated the pandit");
+                }
+                else {
+                    response.internalServerError(res, "Error in updating the pandit");
+                }
             }
             else {
-                response.internalServerError(res, "Error in updating the pandit");
+                if (updatedPandit) {
+                    response.successResponst(res, updatedPandit, "Successfully updated the pandit");
+                }
+                else {
+                    response.internalServerError(res, "Error in updating the pandit");
+                }
             }
         }
         else {
@@ -147,4 +166,4 @@ const deletePandit = asynchandler(async (req, res) => {
         }
     }
 })
-module.exports = { test, createPandit, updatePandit, deletePandit, getAllPandit, getlocationPandit, getPujaBasedPandit ,availablepandit};
+module.exports = { test, createPandit, updatePandit, deletePandit, getAllPandit, getlocationPandit, getPujaBasedPandit, availablepandit };

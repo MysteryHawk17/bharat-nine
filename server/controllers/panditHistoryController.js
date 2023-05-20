@@ -11,7 +11,7 @@ const test = asynchandler(async (req, res) => {
 const addHistory = asynchandler(async (req, res) => {
     const userId = req.user._id;
     const { address, puja, phone, email, date, time, cost, payment_mode, inclusion, panditId } = req.body;
-    if (!address || !puja || !phone || !email || !date || !time || cost || !payment_mode || !inclusion || !panditId) {
+    if (!address || !puja || !phone || !email || !date || !time || !cost || !payment_mode || !inclusion || !panditId) {
         response.validationError(res, 'Please fill in the valid details properly.')
         return;
     }

@@ -10,19 +10,32 @@ const test = asynchandler(async (req, res) => {
 })
 
 const addToCart = asynchandler(async (req, res) => {
-    const { cartId } = req.params;
+    const cartId = req.user.cartId;
+    console.log(req.body)
     const { productId, quantity } = req.body;
     const cart = await cartDB.findById({ _id: cartId });
     if (cart) {
-        const productIndex = cart.products.findIndex(p => p.prasad == productId);
-        const removeItem = cart.products.splice(productIndex, 1);
+        const productIndex = cart.prasad.findIndex(p => p.product == productId);
+        if (productIndex == -1) {
+            const product = {
+                product: productId,
+                quantity: quantity
+            }
+            cart.prasad.splice(0, 0, product);
+        }
+        else{
+        console.log(productIndex)
+        const removeItem = cart.prasad.splice(productIndex, 1);
         const product = {
             product: productId,
             quantity: quantity
         }
-        const updatedCart = cart.products.splice(productIndex, 0, product);
-        const success = await updatedCart.save();
-        const cartF = await cartDB.findById({ _id: cartId }).populate('prasad.product');
+        if (quantity !== 0) {
+            cart.prasad.splice(productIndex, 0, product);
+        }
+    }
+        const success = await cart.save();
+        const cartF = await cartDB.findById({ _id: cartId });
         if (success && cartF) {
             response.successResponst(res, cartF, "Updated cart fetched successfully");
         }
@@ -35,22 +48,26 @@ const addToCart = asynchandler(async (req, res) => {
     }
 })
 const getCartDetails = asynchandler(async (req, res) => {
-    const { cartId } = req.params;
-    const cartDetails = await cartDB.findById({ _id: cartId }).populate('prasad.product');
+    const cartId = req.user.cartId;
+    console.log(cartId);
+
+    const cartDetails = await cartDB.findById({ _id: cartId });
     if (cartDetails) {
         response.successResponst(res, cartDetails, 'Successfully fetched the cart details');
     }
     else {
         response.internalServerError(res, 'Unable to fetch the cart details');
     }
+
 })
 
 const prasadCheckout = asynchandler(async (req, res) => {
-    const { id } = req.params;
-    const { email, address, payment_mode, cartId } = req.body;
+    const id = req.user._id;
+    const { email, address, payment_mode } = req.body;
     const user = await userDB.findById({ _id: id });
     if (user) {
-        const findCart = await cartDB.findById({ _id: id });
+        const findCart = await cartDB.findById({ _id: user.cartId });
+        console.log(findCart);
         if (findCart.prasad.length == 0) {
             response.errorResponse(res, "Cart is empty", 400);
         }
@@ -83,8 +100,9 @@ const prasadCheckout = asynchandler(async (req, res) => {
 
 })
 const getPrasadHistory = asynchandler(async (req, res) => {
-    const { id } = req.params;
-    const prasadHistoryItem = await prasadHistoryDB.find({ userId: id });
+    const id = req.user._id;
+    const prasadHistoryItem = await prasadHistoryDB.find({ userId: id }).populate({ path: 'products.product', select: 'email address' })
+    console.log(prasadHistoryItem)
     if (prasadHistoryItem) {
         response.successResponst(res, prasadHistoryItem, 'Successfully fetched the item');
     }
@@ -93,4 +111,4 @@ const getPrasadHistory = asynchandler(async (req, res) => {
     }
 })
 
-module.exports = { test, addToCart, prasadCheckout, getPrasadHistory,getCartDetails };
+module.exports = { test, addToCart, prasadCheckout, getPrasadHistory, getCartDetails };
