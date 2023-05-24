@@ -1,10 +1,12 @@
 const userDB = require("../models/userModel")
 const cartDB = require("../models/cartModel")
+const tokenDB=require("../models/tokenModel");
+const crypto=require("crypto")
 const response = require("../middlewares/responseMiddleware")
 const asynchandler = require("express-async-handler");
-const cloudinary = require("../utils/cloudinary")
 const jwt = require("../utils/jwt");
 const bcrypt = require("bcryptjs")
+const sendMail = require("../utils/sendmail")
 const registerUser = asynchandler(async (req, res) => {
     console.log(req.body)
     const { displayName, email, password, phone, isAdmin } = req.body;
@@ -89,4 +91,73 @@ const loginUser = asynchandler(async (req, res) => {
 
     }
 })
-module.exports = { registerUser, loginUser };
+const forgotpassword = asynchandler(async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        response.validationError(res,"Please fill in the field");
+    }
+    const user = await userDB.findOne({ email: email })
+    if (!user) {
+        response.notFoundError(res,"User not found");
+    }
+    else {
+        const tokenExists = await tokenDB.findOne({ userId: user._id })
+        if (tokenExists) {
+            await tokenDB.deleteOne({ userId: user._id });
+        }
+        const resetToken = crypto.randomBytes(32).toString("hex") + user._id
+        const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+        console.log(resetToken)
+        // console.log(hashedToken)
+        const savedToken = await new tokenDB({
+            userId: user._id,
+            token: hashedToken,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + 30 * (60 * 1000)
+
+        }).save();
+        console.log(savedToken)
+        const resetUrl = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`
+        console.log(resetUrl);
+        const message =
+            `<h2>Hello ${user.displayName}</h2>
+        <p>Please click on the below link to reset the password</p>
+        <p>The reset link is valid for 30 minutes</p>
+        <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
+        <p>Regards</p>`;
+        const subject = "PASSWORD RESET"
+        const send_to = user.email
+        const sent_from = process.env.EMAIL_USER
+
+        try {
+            await sendMail(subject, message, send_to, sent_from);
+            response.successResponst(res,'',"Successfully sent the mail");
+        } catch {
+            response.internalServerError(res,'Not able to send the mail');
+        }
+
+    }
+
+})
+const resetpassword = asynchandler(async (req, res) => {
+    const { token } = req.params
+    const { password } = req.body
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+    const verifyToken = await tokenDB.findOne({ token: hashedToken, expiresAt: { $gt: Date.now() } })
+    if (!verifyToken) {
+        res.status(400)
+        throw new Error("Invalid or Expired Token")
+    }
+    const user = await userDB.findOne({ _id: verifyToken.userId })
+    if (!user) {
+        res.status(404)
+        throw new Error("User does not exists")
+    }
+    else {
+        user.password = await bcrypt.hash(password,await bcrypt.genSalt(10));
+        await user.save();
+        res.status(200).json({ message: "Updated password successfully!" })
+    }
+
+})
+module.exports = { registerUser, loginUser ,forgotpassword,resetpassword};

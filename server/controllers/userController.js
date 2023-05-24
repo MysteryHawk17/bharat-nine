@@ -105,7 +105,7 @@ const updateUser = asynchandler(async (req, res) => {
         response.notFoundError(res, "User not found");
     }
 })
-const resetPassword = asynchandler(async (req, res) => {
+const updatePassword = asynchandler(async (req, res) => {
     const userId = req.user._id;
     if (!userId) {
         response.validationError(res, "Unable to validate user");
@@ -140,7 +140,7 @@ const resetPassword = asynchandler(async (req, res) => {
         response.notFoundError(res, "Given user not found");
     }
 })
-module.exports = { test, getAllUser, getUser, deleteUser, updateUser,resetPassword };
+module.exports = { test, getAllUser, getUser, deleteUser, updateUser,updatePassword };
 
 
 
