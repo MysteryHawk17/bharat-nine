@@ -41,6 +41,14 @@ const prasadSchema = mongoose.Schema({
     },
     productCode: {
         type: String
+    },
+    status: {
+        type: String,
+        required:true
+    },
+    dateOfExp: {
+        type: String,
+        required:true
     }
 
 }, { timestamps: true })

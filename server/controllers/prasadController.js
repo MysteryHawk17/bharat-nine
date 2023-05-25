@@ -7,8 +7,8 @@ const cloudinary = require("../utils/cloudinary")
 const shortidChar = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$@";
 
 const createPrasad = asynchandler(async (req, res) => {
-    const { templeName, address, pincode, cost, description, howToReach, geoLat, geoLong, itemsIncluded } = req.body;
-    if (!templeName || !address || !pincode || !cost || !description || !howToReach || !geoLat || !geoLong || !itemsIncluded || !req.file) {
+    const { templeName, address, pincode, cost, description, howToReach, geoLat, geoLong, itemsIncluded,status,dateOfExp } = req.body;
+    if (!templeName || !address || !pincode || !cost || !description || !howToReach || !geoLat || !geoLong || !itemsIncluded || !req.file||!status||!dateOfExp) {
         response.validationError(res, "Please fill in the details");
         return;
     }
@@ -38,7 +38,9 @@ const createPrasad = asynchandler(async (req, res) => {
         howToReach: howToReach,
         geoLat: geoLat,
         geoLong: geoLong,
-        productCode: productId
+        productCode: productId,
+        status:status,
+        dateOfExp:dateOfExp
     })
     const savedPrasad = await newPrasad.save();
     if (savedPrasad) {
@@ -93,7 +95,7 @@ const updatePrasad = asynchandler(async (req, res) => {
     const id = req.params.id;
     const prasad = await prasadDB.findById({ _id: id });
     if (prasad) {
-        const { cost, howToReach, description, itemsIncluded } = req.body;
+        const { cost, howToReach, description, itemsIncluded,status } = req.body;
         const updatedOptions = {};
         if (cost) {
             updatedOptions.cost = cost;
@@ -106,6 +108,9 @@ const updatePrasad = asynchandler(async (req, res) => {
         }
         if (itemsIncluded) {
             updatedOptions.itemsIncluded = itemsIncluded;
+        }
+        if (status) {
+            updatedOptions.status = status;
         }
         const updatedPrasad = await prasadDB.findByIdAndUpdate({ _id: id }, updatedOptions, { new: true });
         if (updatedPrasad) {
