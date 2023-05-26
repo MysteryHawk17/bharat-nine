@@ -95,22 +95,35 @@ const updatePrasad = asynchandler(async (req, res) => {
     const id = req.params.id;
     const prasad = await prasadDB.findById({ _id: id });
     if (prasad) {
-        const { cost, howToReach, description, itemsIncluded,status } = req.body;
+        const { cost, templeName, description, status,dateOfExp ,address,pincode} = req.body;
         const updatedOptions = {};
         if (cost) {
             updatedOptions.cost = cost;
         }
-        if (howToReach) {
-            updatedOptions.howToReach = howToReach;
+        if (templeName) {
+            updatedOptions.templeName = templeName;
         }
         if (description) {
             updatedOptions.description = description;
         }
-        if (itemsIncluded) {
-            updatedOptions.itemsIncluded = itemsIncluded;
+        if (dateOfExp) {
+            updatedOptions.dateOfExp = dateOfExp;
         }
         if (status) {
             updatedOptions.status = status;
+        }
+        if(req.file){
+            const uploadedData=await cloudinary.uploader.upload(req.file.path,{
+                folder:"Bharat One"
+            })
+            updatedOptions.displayImage=uploadedData.secure_url;
+        }
+        if(address||pincode){
+            const location={
+                address:address,
+                pincode:pincode
+            }
+            updatedOptions.location=location;
         }
         const updatedPrasad = await prasadDB.findByIdAndUpdate({ _id: id }, updatedOptions, { new: true });
         if (updatedPrasad) {

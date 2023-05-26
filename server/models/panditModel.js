@@ -19,14 +19,24 @@ const panditSchema = mongoose.Schema({
     image: {
         type: String
     },
-    unavailableTimings: [{
+    availableTimings: [{
         date: {
             type: String
         },
         time: {
             type: String
         }
-    }]
+    }],
+    expertise:{
+        type:String
+    },
+    languages:[
+        String
+    ],
+    ratings:{
+        type:Number,
+        
+    }
 })
 
 const panditModel = mongoose.model("Pandit", panditSchema)

@@ -32,31 +32,39 @@ const addHistory = asynchandler(async (req, res) => {
         cc_orderId: '',
         cc_bankRefNo: ''
     })
-    const reserved = {
-        date: date,
-        time: time
-    }
     const pandit = await panditDB.findById({ _id: panditId });
     if (pandit) {
-        const updatePandit = await panditDB.findByIdAndUpdate({ _id: panditId }, {
-            $push: { unavailableTimings: reserved }
+        const availableTimings = pandit.availableTimings;
+        console.log(availableTimings)
+        const findIndex = availableTimings.findIndex(obj => obj.date === date && obj.time === time);
+        console.log(findIndex);
+         availableTimings.splice(findIndex, 1);
+        console.log(availableTimings);
+        const updatedPandit = await panditDB.findByIdAndUpdate({
+            _id: panditId
+        }, {
+            availableTimings: availableTimings
         }, { new: true });
-        if (updatePandit) {
+        
+        if (updatedPandit) {
             const savedHistory = await newHistory.save();
             if (savedHistory) {
-                response.successResponst(res, savedHistory, "Saved history successfully")
+                response.successResponst(res, savedHistory, "Successfully saved the history");
             }
             else {
                 response.internalServerError(res, "Error in saving history");
             }
+
         }
         else {
-            response.internalServerError(res, 'Unable to update pandit')
+            response.errorResponse(res, "Cannot update pandit timings", 500);
         }
     }
     else {
         response.notFoundError(res, "Error in finding the pandit");
     }
+
+
 
 })
 
@@ -84,5 +92,5 @@ const getAllBookings = asynchandler(async (req, res) => {
 })
 
 
-module.exports = { test, addHistory,getAllBookings,getHistory };
+module.exports = { test, addHistory, getAllBookings, getHistory };
 

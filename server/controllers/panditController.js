@@ -7,8 +7,8 @@ const test = asynchandler(async (req, res) => {
 })
 
 const createPandit = asynchandler(async (req, res) => {
-    const { name, location, exp, puja } = req.body;
-    if (!name || !location || !exp || !puja) {
+    const { name, location, exp, puja, expertise, language, availableTimings,ratings } = req.body;
+    if (!name || !location || !exp || !puja||!expertise||!language||!availableTimings) {
         response.validationError(res, "Fill in the details properly");
         return;
     }
@@ -20,12 +20,19 @@ const createPandit = asynchandler(async (req, res) => {
         })
         image = uploadedData.secure_url
     }
+    const languageArray = language.split(",")
+    const pujaArray = puja.split(",");
+    const availableTimingsArray=JSON.parse(availableTimings);
     const newPandit = new panditDB({
         name: name,
         location: location,
         exp: exp,
-        puja: puja,
-        image: image
+        puja: pujaArray,
+        language: languageArray,
+        expertise: expertise,
+        availableTimings: availableTimingsArray,
+        image: image,
+        ratings:ratings
     })
     const savedPandit = await newPandit.save();
 
@@ -72,22 +79,22 @@ const getPujaBasedPandit = asynchandler(async (req, res) => {
 const availablepandit = asynchandler(async (req, res) => {
     const { date, time } = req.body;
     const { location } = req.query;
-    const fetchedPandit=await panditDB.find({
-        location:location,
-        unavailableTimings:{
-            $not:{
-                $elemMatch:{
-                    date:date,
-                    time:time
-                }
+    const fetchedPandit = await panditDB.find({
+        location: location,
+        availableTimings: {
+
+            $elemMatch: {
+                date: date,
+                time: time
             }
+
         }
     })
-    if(fetchedPandit){
-        response.successResponst(res,fetchedPandit,"Successfully fetched the pandits");
+    if (fetchedPandit) {
+        response.successResponst(res, fetchedPandit, "Successfully fetched the pandits");
     }
-    else{
-        response.internalServerError(res,"Error in fetching the pandit");
+    else {
+        response.internalServerError(res, "Error in fetching the pandit");
     }
 
 })
@@ -100,7 +107,7 @@ const updatePandit = asynchandler(async (req, res) => {
         const findPandit = await panditDB.findById({ _id: id });
         if (findPandit) {
             const updateData = {};
-            const { exp, puja, location } = req.body;
+            const { exp, puja, location,ratings,expertise ,language,availableTimings} = req.body;
 
             if (exp) {
                 updateData.exp = exp;
@@ -112,10 +119,23 @@ const updatePandit = asynchandler(async (req, res) => {
                 const uploadedData = await cloudinary.uploader.upload(req.file.path, {
                     folder: "Bharat One"
                 })
-                
+
                 updateData.image = uploadedData.secure_url;
             }
-
+            if(ratings){
+                updateData.ratings=ratings;
+            }
+            if(expertise){
+                updateData.expertise=expertise;
+            }
+            if(language){
+                const languageArray=language.split(",");
+                updateData.languages=languageArray;
+            }
+            if(availableTimings){
+                const availableTimingsArray=JSON.parse(availableTimings);
+                updateData.availableTimings=availableTimingsArray;
+            }
             const updatedPandit = await panditDB.findByIdAndUpdate({ _id: id }, updateData, { new: true });
 
             if (puja) {

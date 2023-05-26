@@ -9,6 +9,8 @@ const test = asynchanler(async (req, res) => {
 
 const createPuja = asynchanler(async (req, res) => {
     const { name, cost, description, temple, based } = req.body;
+    console.log(req.file)
+    console.log(req.body)
     if (!name ||
         !cost ||
         !description ||
@@ -98,14 +100,23 @@ const updatePuja=asynchanler(async(req,res)=>{
     }
     const findPuja=await pujaDB.findById({_id:id});
     if(findPuja){
-        const{cost,description}=req.body;
+        const{cost,description,duration,name,based}=req.body;
         const updateData={};
         if(cost){
             updateData.cost=cost;
         }
+        if(name){
+            updateData.name=name;
+        }
+        if(based){
+            updateData.based=based;
+        }
         if(description)
         {
             updateData.description=description
+        }
+        if(duration){
+            updateData.duration=duration;
         }
         if(req.file){
             const uploadedData=await cloudinary.uploader.upload(req.file.path,{

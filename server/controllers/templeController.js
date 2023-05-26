@@ -7,7 +7,7 @@ const test=asynchandler((req,res)=>{
 })
 
 const createTemple=asynchandler(async(req,res)=>{
-    const{name,location}=req.body;
+    const{name,location,availableTimings}=req.body;
     if(!name||!location){
         response.validationError(res,"Fill in the details properly");
         return;
@@ -15,7 +15,7 @@ const createTemple=asynchandler(async(req,res)=>{
     const newTemple=new templeDB({
         name:name,
         location:location,
-        unavailableDates:[]
+        availableTimings:availableTimings
     })
 
     const savedTemple=await newTemple.save();
@@ -28,7 +28,7 @@ const createTemple=asynchandler(async(req,res)=>{
 })
 
 const getAllTemple=asynchandler(async(req,res)=>{
-    const temples=await templeDB.find({}).populate('bookingData');
+    const temples=await templeDB.find({});
     if(temples){
         response.successResponst(res,temples,"Successfully fetched the temple");
     }
@@ -74,5 +74,39 @@ const deleteTemple=asynchandler(async(req,res)=>{
         }
     }
 })
+const updateTemple=asynchandler(async(req,res)=>{
+    const {id}=req.params;
+    if(!id){
+        response.validationError(res,"Invalid parameter");
+    }
+    else{
+        const findTemple=await templeDB.findById({_id:id});
+        if(findTemple){
+            const{name,location,availableTimings}=req.body;
+            const updateData={};
+            if(name){
+                updateData.name=name;
+            }
+            if(location){
+                updateData.location=location;
+            }
+            if(availableTimings){
+                updateData.availableTimings=availableTimings;
+            }
+            const updatedTemple=await templeDB.findByIdAndUpdate({_id:id},updateData,{new:true});
 
-module.exports={test,createTemple,getAllTemple,getSingleTemple,deleteTemple};
+            if(updatedTemple){
+                response.successResponst(res,updatedTemple,"Successfully Updated  the temple");
+
+            }
+            else{
+                response.internalServerError(res,"Failed to update the temple");
+            }
+        }
+        else{
+            response.notFoundError(res,'Temple not found');
+        }
+    }
+})
+
+module.exports={test,createTemple,getAllTemple,getSingleTemple,deleteTemple,updateTemple};

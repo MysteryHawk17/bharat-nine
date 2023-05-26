@@ -9,7 +9,7 @@ const templeSchema=mongoose.Schema({
         type:String,
         required:true
     },
-    bookingData:[{
+    availableTimings:[{
         date:{
             type:String
         },
