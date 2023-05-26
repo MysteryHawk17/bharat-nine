@@ -52,6 +52,22 @@ const getAllPandit = asynchandler(async (req, res) => {
         response.internalServerError(res, "Not able to fetch the pandits")
     }
 })
+const getAPandit=asynchandler(async(req,res)=>{
+    const id=req.params.id;
+    if(!id){
+        response.validationError(res,"Invalid parameters");
+        return;
+    }
+    const findPandit=await panditDB.findById({_id:id});
+    if(findPandit){
+        response.successResponst(res,findPandit,"Successfully found the pandit");
+    }
+    else{
+        response.notFoundError(res,"Specified pandit not found");
+    }
+    
+})
+
 
 const getlocationPandit = asynchandler(async (req, res) => {
     const { location } = req.query;
@@ -186,4 +202,4 @@ const deletePandit = asynchandler(async (req, res) => {
         }
     }
 })
-module.exports = { test, createPandit, updatePandit, deletePandit, getAllPandit, getlocationPandit, getPujaBasedPandit, availablepandit };
+module.exports = { test, createPandit, updatePandit, deletePandit,getAPandit, getAllPandit, getlocationPandit, getPujaBasedPandit, availablepandit };

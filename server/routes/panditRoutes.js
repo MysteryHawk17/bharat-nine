@@ -1,10 +1,11 @@
-const { test, getAllPandit, getlocationPandit, getPujaBasedPandit, deletePandit, updatePandit, createPandit, availablepandit } = require("../controllers/panditController")
+const { test, getAllPandit, getlocationPandit, getPujaBasedPandit, deletePandit, updatePandit, createPandit, availablepandit, getAPandit } = require("../controllers/panditController")
 const { checkAdmin } = require("../middlewares/authMiddleware")
 
 const router = require("express").Router()
 const upload = require('../utils/multer')
 router.get("/test", test)
 router.post('/createpandit', checkAdmin, upload.single("image"), createPandit)
+router.get("/getpandit/:id",getAPandit);
 router.get("/getallpandit", getAllPandit)
 router.get("/getlocationpandit", getlocationPandit)
 router.get("/getpujapandit", getPujaBasedPandit)
