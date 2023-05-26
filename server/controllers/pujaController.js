@@ -43,6 +43,15 @@ const createPuja = asynchanler(async (req, res) => {
     }
 
 })
+const getAllPuja = asynchanler(async (req, res) => {
+    const allPuja = await pujaDB.find({}).populate('temple');
+    if (allPuja) {
+        response.successResponst(res, allPuja, "Successfully fetched the puja");
+    }
+    else {
+        response.internalServerError(res, "Error in getting the pujas");
+    }
+})
 const getbasedPuja = asynchanler(async (req, res) => {
     const { based } = req.query;
     const getAllPuja = await pujaDB.find({ based: based }).populate('temple');
@@ -155,4 +164,4 @@ const updatePuja = asynchanler(async (req, res) => {
 
 })
 //create a function to handlecheckout which takes all the data from the body and forms a final history of data 
-module.exports = { test, createPuja, getbasedPuja, getLocationPuja, deletePuja, updatePuja ,getPuja};
+module.exports = { test, createPuja, getbasedPuja, getLocationPuja, deletePuja, updatePuja, getPuja, getAllPuja };
