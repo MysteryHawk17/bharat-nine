@@ -17,16 +17,15 @@ const panditRoutes = require("./routes/panditRoutes")
 const prasadCheckoutRoutes = require("./routes/prasadCheckoutRoute");
 const pujaHistoryRoutes = require("./routes/pujaHistoryRoutes");
 const panditHistoryRoutes = require('./routes/panditHistoryRoutes');
-const userRoutes=require("./routes/userRoutes");
-const darshanRoutes=require("./routes/liveDarshanRoutes");
-const bannerRoutes=require('./routes/bannerRoutes');
+const userRoutes = require("./routes/userRoutes");
+const darshanRoutes = require("./routes/liveDarshanRoutes");
+const bannerRoutes = require('./routes/bannerRoutes');
 //middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json({ limit: "50mb" }));
-app.use(cors({
-        origin:["http://localhost:3000","https://bharat-nine.vercel.app"]
-    }))
+app.use(cors());
+app.use(cors({ origin: '*' }));
 
 //route middlewares
 app.use("/api/auth", authRoutes);
@@ -39,9 +38,9 @@ app.use("/api/pandit", panditRoutes);
 app.use('/api/checkout/prasad', prasadCheckoutRoutes);
 app.use('/api/checkout/puja', pujaHistoryRoutes)
 app.use('/api/checkout/pandit', panditHistoryRoutes);
-app.use("/api/user",userRoutes);
-app.use("/api/darshan",darshanRoutes);
-app.use('/api/banner',bannerRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/darshan", darshanRoutes);
+app.use('/api/banner', bannerRoutes);
 //server test route
 app.get("/", (req, res) => {
     res.status(200).json({ message: "bharat-one server is running" })
