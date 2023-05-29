@@ -52,7 +52,7 @@ const getAllPuja = asynchanler(async (req, res) => {
         response.internalServerError(res, "Error in getting the pujas");
     }
 })
-const getbasedPuja = asynchanler(async (req, res) => {
+const getbasedPuja = asynchanler(async (req, res) => { 
     const { based } = req.query;
     const getAllPuja = await pujaDB.find({ based: based }).populate('temple');
     if (getAllPuja) {

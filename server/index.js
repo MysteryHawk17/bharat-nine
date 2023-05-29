@@ -24,11 +24,9 @@ const bannerRoutes=require('./routes/bannerRoutes');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json({ limit: "50mb" }));
-app.use(
-    cors({
-        origin: '*'
-    })
-);
+app.use(cors({
+        origin:["http://localhost:3000","https://bharat-nine.vercel.app"]
+    }))
 
 //route middlewares
 app.use("/api/auth", authRoutes);
