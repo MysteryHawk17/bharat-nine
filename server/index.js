@@ -25,7 +25,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json({ limit: "50mb" }));
 app.use(cors());
-app.use(cors({ origin: '*' }));
 
 //route middlewares
 app.use("/api/auth", authRoutes);
