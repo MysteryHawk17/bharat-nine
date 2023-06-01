@@ -27,23 +27,44 @@ const addBanner = asynchandler(async (req, res) => {
 })
 
 const deleteBanner = asynchandler(async (req, res) => {
-    const id=req.params.id;
-    if(!id){
-        response.validationError(res,"Please fill in the valid field");
+    const id = req.params.id;
+    if (!id) {
+        response.validationError(res, "Please fill in the valid field");
     }
-    const findBanner=await bannerDB.findById({_id:id});
-    if(findBanner){
-        const deletedBanner=await bannerDB.findByIdAndDelete({_id:id});
-        if(deletedBanner){
-            response.successResponst(res,deletedBanner,"Banner deleted successfully");
+    const findBanner = await bannerDB.findById({ _id: id });
+    if (findBanner) {
+        const deletedBanner = await bannerDB.findByIdAndDelete({ _id: id });
+        if (deletedBanner) {
+            response.successResponst(res, deletedBanner, "Banner deleted successfully");
         }
-        else{
-            response.internalServerError(res,"failed to delete the banner successfully");
+        else {
+            response.internalServerError(res, "failed to delete the banner successfully");
         }
-    }   
-    else{
-        response.notFoundError(res,"Cannot find the banner");
+    }
+    else {
+        response.notFoundError(res, "Cannot find the banner");
     }
 })
-
-module.exports={addBanner,deleteBanner};
+const getBanner = asynchandler(async (req, res) => {
+    const id = req.params.id;
+    if (!id) {
+        response.validationError(res, "Please fill in the valid field");
+    }
+    const findBanner = await bannerDB.findById({ _id: id });
+    if (findBanner) {
+        response.successResponst(res, findBanner, "Banner fetched  successfully");
+    }
+    else {
+        response.notFoundError(res, "Cannot find the banner");
+    }
+})
+const getAllBanner=asynchandler(async(req,res)=>{
+    const allBanner=await bannerDB.find({});
+    if(allBanner){
+        response.successResponst(res,allBanner,"Successfully fetched all the banner");
+    }
+    else{
+        response.internalServerError(res,"Failed to fetch all the banner");
+    }
+})
+module.exports = { addBanner, deleteBanner,getBanner ,getAllBanner};
