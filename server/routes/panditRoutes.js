@@ -1,16 +1,20 @@
-const { test, getAllPandit, getlocationPandit, getPujaBasedPandit, deletePandit, updatePandit, createPandit, availablepandit, getAPandit } = require("../controllers/panditController")
-const { checkAdmin } = require("../middlewares/authMiddleware")
+const { test, createPandit, updatePandit, deletePandit, getAllPandit, getAPandit, getlocationPandit, getPujaBasedPandit, availableTimings } = require("../controllers/panditController");
 
-const router = require("express").Router()
-const upload = require('../utils/multer')
-router.get("/test", test)
-router.post('/createpandit', checkAdmin, upload.single("image"), createPandit)
+const router=require("express").Router();
+const upload=require("../utils/multer");
+
+
+
+router.get("/test",test);
+router.post("/createpandit",upload.single('image'),createPandit);
+router.put("/updatepandit/:id",upload.single('image'),updatePandit);
+router.delete("/deletepandit/:id",deletePandit);
+router.get("/getallpandit",getAllPandit);
 router.get("/getpandit/:id",getAPandit);
-router.get("/getallpandit", getAllPandit)
-router.get("/getlocationpandit", getlocationPandit)
-router.get("/getpujapandit", getPujaBasedPandit)
-router.get("/availablepandit",availablepandit);
-router.delete("/deletepandit/:id", checkAdmin, deletePandit);
-router.put("/updatepandit/:id", checkAdmin, upload.single("image"), updatePandit);
+router.get("/getlocationpandit",getlocationPandit);
+router.get("/getpujapandit",getPujaBasedPandit);
+router.get("/availablepandit",availableTimings);
 
-module.exports = router;
+
+
+module.exports=router;

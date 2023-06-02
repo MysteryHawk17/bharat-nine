@@ -1,4 +1,4 @@
-const mongoose=require("mongoose")
+const mongoose=require("mongoose");
 
 const templeSchema=mongoose.Schema({
     name:{
@@ -9,6 +9,10 @@ const templeSchema=mongoose.Schema({
         type:String,
         required:true
     },
+    price:{
+        type:Number,
+        required:true
+    },
     availableTimings:[{
         date:{
             type:String
@@ -17,9 +21,9 @@ const templeSchema=mongoose.Schema({
             type:String
         }
     }]
-    
-   
-},{timestamps:true})
+})
 
-const templeModel=mongoose.model("Temple",templeSchema)
+const templeModel=mongoose.model("Temple",templeSchema);
+
+
 module.exports=templeModel;

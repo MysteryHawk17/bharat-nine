@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
 const panditSchema = mongoose.Schema({
     name: {
@@ -13,7 +13,7 @@ const panditSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    puja: [
+    puja:[
         String
     ],
     image: {
@@ -27,18 +27,21 @@ const panditSchema = mongoose.Schema({
             type: String
         }
     }],
-    expertise:{
-        type:String
+    expertise: {
+        type: String
     },
-    languages:[
+    languages: [
         String
     ],
-    ratings:{
-        type:Number,
-        
+    ratings: {
+        type: Number,
+
+    },
+    price: {
+        type: Number
     }
+
 })
 
-const panditModel = mongoose.model("Pandit", panditSchema)
-
+const panditModel = mongoose.model("Pandit", panditSchema);
 module.exports = panditModel;
