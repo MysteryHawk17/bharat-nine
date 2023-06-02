@@ -21,9 +21,17 @@ const darshanSchema = ({
         type: String,
         enum: ['ONGOING', 'UPCOMING']
     },
+    pujaLink: {
+        type: String,
+        required: true
+    },
+    prasadLink: {
+        type: String,
+        required: true
+    },
 
 })
 
-const darshanModel=mongoose.model("Darshan",darshanSchema);
+const darshanModel = mongoose.model("Darshan", darshanSchema);
 
-module.exports=darshanModel;
+module.exports = darshanModel;

@@ -29,6 +29,18 @@ const prasadSchema = mongoose.Schema({
     description: {
         type: String
     },
+    specifications:{
+        type:String,
+        required:true
+    },
+    qna:[{
+        question:{
+            type:String
+        },
+        answer:{
+            type:String
+        }
+    }],
     howToReach: {
         type: String
     },

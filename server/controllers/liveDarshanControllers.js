@@ -7,8 +7,8 @@ const test = asynchandler(async (req, res) => {
 })
 
 const createDarshan = asynchandler(async (req, res) => {
-    const { name, temple, ytLink, scheduledTime, status } = req.body;
-    if (!name || !temple || !ytLink || !scheduledTime
+    const { name, temple, ytLink, scheduledTime, status, pujaLink, prasadLink } = req.body;
+    if (!name || !temple || !ytLink || !scheduledTime || !pujaLink || !prasadLink
         || !status) {
         response.validationError(res, "Please fill in the fields properly.");
         return;
@@ -20,7 +20,9 @@ const createDarshan = asynchandler(async (req, res) => {
         temple: temple,
         ytLink: ytLink,
         scheduledTime: scheduledTime,
-        status: statusC
+        status: statusC,
+        prasadLink: prasadLink,
+        pujaLink: pujaLink
     })
     const savedDarshan = await newDarshan.save();
     if (savedDarshan) {
@@ -76,7 +78,7 @@ const deleteDarshan = asynchandler(async (req, res) => {
         response.notFoundError(res, "error in finding the darshan");
     }
 })
-const updateDarshan = asynchandler(async (req,res) => {
+const updateDarshan = asynchandler(async (req, res) => {
     const id = req.params.id;
     if (!id) {
         response.validationError(res, "Please give proper parameters");
@@ -85,7 +87,7 @@ const updateDarshan = asynchandler(async (req,res) => {
     const darshan = await darshanDB.findById({ _id: id });
     if (darshan) {
         const updateData = {};
-        const { name, temple, ytLink, scheduledTime, status } = req.body;
+        const { name, temple, ytLink, scheduledTime, status, pujaLink, prasadLink } = req.body;
         if (name) {
             updateData.name = name;
         }
@@ -98,16 +100,22 @@ const updateDarshan = asynchandler(async (req,res) => {
         if (scheduledTime) {
             updateData.scheduledTime = scheduledTime;
         }
+        if (prasadLink) {
+            updateData.prasadLink = prasadLink;
+        }
+        if (pujaLink) {
+            updateData.pujaLink = pujaLink;
+        }
         if (status) {
 
             updateData.status = status.toUpperCase();
         }
-        const updatedDarshan=await darshanDB.findByIdAndUpdate({_id:id},updateData,{new:true});
-        if(updatedDarshan){
-            response.successResponst(res,updatedDarshan,"Successfully updated the darshan");
+        const updatedDarshan = await darshanDB.findByIdAndUpdate({ _id: id }, updateData, { new: true });
+        if (updatedDarshan) {
+            response.successResponst(res, updatedDarshan, "Successfully updated the darshan");
         }
-        else{
-            response.internalServerError(res,"Failed to update the darshan");
+        else {
+            response.internalServerError(res, "Failed to update the darshan");
         }
     }
     else {
@@ -115,7 +123,7 @@ const updateDarshan = asynchandler(async (req,res) => {
     }
 })
 
-module.exports = { test ,createDarshan,getADarshan,getAllDarshan,updateDarshan,deleteDarshan};
+module.exports = { test, createDarshan, getADarshan, getAllDarshan, updateDarshan, deleteDarshan };
 
 
 

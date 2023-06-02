@@ -7,8 +7,9 @@ const cloudinary = require("../utils/cloudinary")
 const shortidChar = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$@";
 
 const createPrasad = asynchandler(async (req, res) => {
-    const { templeName, address, pincode, cost, description, howToReach, geoLat, geoLong, itemsIncluded,status,dateOfExp } = req.body;
-    if (!templeName || !address || !pincode || !cost || !description || !howToReach || !geoLat || !geoLong || !itemsIncluded || !req.file||!status||!dateOfExp) {
+    const { templeName, address, pincode, cost, description, howToReach, geoLat, geoLong, itemsIncluded,status,dateOfExp,specifications,qna } = req.body;
+    console.log(req.body)
+    if (!templeName || !address || !pincode || !cost || !description || !howToReach || !geoLat || !geoLong || !itemsIncluded || !req.file||!status||!dateOfExp||!specifications||!qna) {
         response.validationError(res, "Please fill in the details");
         return;
     }
@@ -40,7 +41,9 @@ const createPrasad = asynchandler(async (req, res) => {
         geoLong: geoLong,
         productCode: productId,
         status:status,
-        dateOfExp:dateOfExp
+        dateOfExp:dateOfExp,
+        specifications:specifications,
+        qna:JSON.parse(qna)
     })
     const savedPrasad = await newPrasad.save();
     if (savedPrasad) {
@@ -95,7 +98,7 @@ const updatePrasad = asynchandler(async (req, res) => {
     const id = req.params.id;
     const prasad = await prasadDB.findById({ _id: id });
     if (prasad) {
-        const { cost, templeName, description, status,dateOfExp ,address,pincode} = req.body;
+        const { cost, templeName, description, status,dateOfExp ,address,pincode,specifications,qna} = req.body;
         const updatedOptions = {};
         if (cost) {
             updatedOptions.cost = cost;
@@ -111,6 +114,12 @@ const updatePrasad = asynchandler(async (req, res) => {
         }
         if (status) {
             updatedOptions.status = status;
+        }
+        if(qna){
+            updatedOptions.qna=JSON.parse(qna);
+        }
+        if(specifications){
+            updatedOptions.specifications=specifications
         }
         if(req.file){
             const uploadedData=await cloudinary.uploader.upload(req.file.path,{
