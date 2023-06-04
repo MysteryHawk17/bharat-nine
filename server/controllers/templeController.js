@@ -87,7 +87,12 @@ const updateTemple = asynchandler(async (req, res) => {
     }
 })
 const getAllTemple = asynchandler(async (req, res) => {
-    const getTemples = await templeDB.find({});
+    const{location}=req.query;
+    const queryObj={};
+    if(location){
+        queryObj.location=location;
+    }
+    const getTemples = await templeDB.find(queryObj);
     if (getTemples) {
         response.successResponst(res, getTemples, 'Successfully fetched all the temples');
     }
@@ -95,6 +100,7 @@ const getAllTemple = asynchandler(async (req, res) => {
         response.internalServerError(res, 'Failed to fetched the temples');
     }
 })
+
 
 const getAtemple = asynchandler(async (req, res) => {
     const { id } = req.params;

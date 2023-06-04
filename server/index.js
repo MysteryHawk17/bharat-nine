@@ -15,8 +15,10 @@ const prasadCheckoutRoutes = require("./routes/prasadCheckoutRoute");
 const userRoutes = require("./routes/userRoutes");
 const darshanRoutes = require("./routes/liveDarshanRoutes");
 const bannerRoutes = require('./routes/bannerRoutes');
-const templeRoutes=require("./routes/templeRoutes");
-const panditRoutes=require("./routes/panditRoutes");
+const templeRoutes = require("./routes/templeRoutes");
+const panditRoutes = require("./routes/panditRoutes");
+const pujaroutes = require("./routes/pujaRoutes");
+const pujaCheckoutRoutes = require("./routes/pujaCheckoutRoutes");
 //middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -33,7 +35,9 @@ app.use("/api/user", userRoutes);
 app.use("/api/darshan", darshanRoutes);
 app.use('/api/banner', bannerRoutes);
 app.use('/api/temple', templeRoutes);
-app.use("/api/pandit",panditRoutes);
+app.use("/api/pandit", panditRoutes);
+app.use("/api/puja", pujaroutes);
+app.use("/api/checkout/puja", pujaCheckoutRoutes)
 //server test route
 app.get("/", (req, res) => {
     res.status(200).json({ message: "bharat-one server is running" })
