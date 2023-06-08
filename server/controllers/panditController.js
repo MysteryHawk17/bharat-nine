@@ -9,8 +9,8 @@ const test = asynchandler(async (req, res) => {
 })
 
 const createPandit = asynchandler(async (req, res) => {
-    const { name, location, exp, price, expertise, puja, language, availableTimings, ratings } = req.body;
-    if (!name || !location || !exp || !price || !puja || !expertise || !language || !availableTimings || !ratings || !req.file) {
+    const { name, location, exp, price, expertise, puja, languages, availableTimings, ratings } = req.body;
+    if (!name || !location || !exp || !price || !puja || !expertise || !languages || !availableTimings || !ratings || !req.file) {
         response.validationError(res, "Fill in the details properly");
         return;
     }
@@ -18,13 +18,13 @@ const createPandit = asynchandler(async (req, res) => {
         folder: "Bharat One"
     })
     const image = uploadedData.secure_url;
-    const languageArray = language.split(",")
+    const languageArray = languages.split(",")
     const availableTimingsArray = JSON.parse(availableTimings);
     const newPandit = new panditDB({
         name: name,
         location: location,
         exp: exp,
-        language: languageArray,
+        languages: languageArray,
         expertise: expertise,
         availableTimings: availableTimingsArray,
         image: image,
@@ -99,7 +99,7 @@ const updatePandit = asynchandler(async (req, res) => {
         const findPandit = await panditDB.findById({ _id: id });
         if (findPandit) {
             const updateData = {};
-            const { name, location, exp, puja, price, expertise, language, availableTimings, ratings } = req.body;
+            const { name, location, exp, puja, price, expertise, languages, availableTimings, ratings } = req.body;
             if (name) {
                 updateData.name = name;
             }
@@ -125,8 +125,8 @@ const updatePandit = asynchandler(async (req, res) => {
             if (expertise) {
                 updateData.expertise = expertise;
             }
-            if (language) {
-                const languageArray = language.split(",");
+            if (languages) {
+                const languageArray = languages.split(",");
                 updateData.languages = languageArray;
             }
             if (puja) {
