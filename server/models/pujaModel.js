@@ -32,10 +32,13 @@ const pujaSchema = mongoose.Schema({
             ref: "Pandit"
         }
     ],
-    image: {
-        type: String,
-        required: true
-    },
+    displayImages: [
+        {
+            url: {
+                type: String,
+
+            }
+        }],
     mode: {
         type: String,
         required: true
@@ -45,10 +48,10 @@ const pujaSchema = mongoose.Schema({
         enum: ['GOD-GODESSES', 'OCCASION', 'INDIVIDUAL'],
 
     },
-    inclusions:[String]
+    inclusions: [String]
 })
 
 
-const pujaModel=mongoose.model("Puja",pujaSchema);
+const pujaModel = mongoose.model("Puja", pujaSchema);
 
-module.exports=pujaModel;
+module.exports = pujaModel;

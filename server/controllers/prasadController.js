@@ -7,9 +7,9 @@ const cloudinary = require("../utils/cloudinary")
 const shortidChar = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$@";
 
 const createPrasad = asynchandler(async (req, res) => {
-    const { templeName, address, pincode, cost, description, howToReach, geoLat, geoLong, itemsIncluded,status,dateOfExp,specifications,qna } = req.body;
-    console.log(req.body)
-    if (!templeName || !address || !pincode || !cost || !description || !howToReach || !geoLat || !geoLong || !itemsIncluded || !req.file||!status||!dateOfExp||!specifications||!qna) {
+    const { templeName, address, pincode, cost, description, howToReach, geoLat, geoLong, itemsIncluded, status, dateOfExp, specifications, qna } = req.body;
+
+    if (!templeName || !address || !pincode || !cost || !description || !howToReach || !geoLat || !geoLong || !itemsIncluded || !status || !dateOfExp || !specifications || !qna || !req.files) {
         response.validationError(res, "Please fill in the details");
         return;
     }
@@ -20,13 +20,23 @@ const createPrasad = asynchandler(async (req, res) => {
         }
     ]
     const productId = shortid.generate(shortidChar);
-    let displayURL = '';
-    if (req.file) {
-        const uploadedImg = await cloudinary.uploader.upload(req.file.path, {
+    console.log(req.files);
+    var displayImages = [];
+    const uploadFile = async (e) => {
+        const uploadedImg = await cloudinary.uploader.upload(e.path, {
             folder: "Bharat One"
         })
-        displayURL = uploadedImg.secure_url;
+        const obj = { url: uploadedImg.secure_url };
+        console.log(obj)
+        displayImages = [...displayImages, obj]
+
     }
+    const len = req.files.length;
+    console.log(len)
+    for (let i = 0; i < len; i++) {
+        await uploadFile(req.files[i]);
+    }
+    console.log(displayImages)
     const items = itemsIncluded.split(',');
 
     const newPrasad = new prasadDB({
@@ -34,16 +44,16 @@ const createPrasad = asynchandler(async (req, res) => {
         location: location,
         cost: cost,
         itemsIncluded: items,
-        displayImage: displayURL,
+        displayImages: displayImages,
         description: description,
         howToReach: howToReach,
         geoLat: geoLat,
         geoLong: geoLong,
         productCode: productId,
-        status:status,
-        dateOfExp:dateOfExp,
-        specifications:specifications,
-        qna:JSON.parse(qna)
+        status: status,
+        dateOfExp: dateOfExp,
+        specifications: specifications,
+        qna: JSON.parse(qna)
     })
     const savedPrasad = await newPrasad.save();
     if (savedPrasad) {
@@ -98,7 +108,7 @@ const updatePrasad = asynchandler(async (req, res) => {
     const id = req.params.id;
     const prasad = await prasadDB.findById({ _id: id });
     if (prasad) {
-        const { cost, templeName, description, status,dateOfExp ,address,pincode,specifications,qna} = req.body;
+        const { cost, templeName, description, status, dateOfExp, address, pincode, specifications, qna } = req.body;
         const updatedOptions = {};
         if (cost) {
             updatedOptions.cost = cost;
@@ -115,24 +125,38 @@ const updatePrasad = asynchandler(async (req, res) => {
         if (status) {
             updatedOptions.status = status;
         }
-        if(qna){
-            updatedOptions.qna=JSON.parse(qna);
+        if (qna) {
+            updatedOptions.qna = JSON.parse(qna);
         }
-        if(specifications){
-            updatedOptions.specifications=specifications
+        if (specifications) {
+            updatedOptions.specifications = specifications
         }
-        if(req.file){
-            const uploadedData=await cloudinary.uploader.upload(req.file.path,{
-                folder:"Bharat One"
-            })
-            updatedOptions.displayImage=uploadedData.secure_url;
-        }
-        if(address||pincode){
-            const location={
-                address:address,
-                pincode:pincode
+        if (req.files) {
+
+            var displayImages = [];
+            const uploadFile = async (e) => {
+                const uploadedImg = await cloudinary.uploader.upload(e.path, {
+                    folder: "Bharat One"
+                })
+                const obj = { url: uploadedImg.secure_url };
+                console.log(obj)
+                displayImages = [...displayImages, obj]
+
             }
-            updatedOptions.location=location;
+            const len = req.files.length;
+            console.log(len)
+            for (let i = 0; i < len; i++) {
+                await uploadFile(req.files[i]);
+            }
+            console.log(displayImages)
+            updatedOptions.displayImages = displayImages;
+        }
+        if (address || pincode) {
+            const location = {
+                address: address,
+                pincode: pincode
+            }
+            updatedOptions.location = location;
         }
         const updatedPrasad = await prasadDB.findByIdAndUpdate({ _id: id }, updatedOptions, { new: true });
         if (updatedPrasad) {
@@ -147,4 +171,4 @@ const updatePrasad = asynchandler(async (req, res) => {
     }
 })
 
-module.exports = {  createPrasad, getAllPrasad, getPrasad, deletePrasad, updatePrasad };
+module.exports = { createPrasad, getAllPrasad, getPrasad, deletePrasad, updatePrasad };

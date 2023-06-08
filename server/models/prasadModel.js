@@ -22,23 +22,26 @@ const prasadSchema = mongoose.Schema({
         type: String,
         required: true
     }],
-    displayImage: {
-        type: String,
+    displayImages: [
+        {
+            url: {
+                type: String,
 
-    },
+            }
+        }],
     description: {
         type: String
     },
-    specifications:{
-        type:String,
-        required:true
+    specifications: {
+        type: String,
+        required: true
     },
-    qna:[{
-        question:{
-            type:String
+    qna: [{
+        question: {
+            type: String
         },
-        answer:{
-            type:String
+        answer: {
+            type: String
         }
     }],
     howToReach: {
@@ -56,11 +59,11 @@ const prasadSchema = mongoose.Schema({
     },
     status: {
         type: String,
-        required:true
+        required: true
     },
     dateOfExp: {
         type: String,
-        required:true
+        required: true
     }
 
 }, { timestamps: true })

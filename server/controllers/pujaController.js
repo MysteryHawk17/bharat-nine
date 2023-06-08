@@ -11,13 +11,26 @@ const test = asynchandler(async (req, res) => {
 //decide ho jayega
 const createOnlinePuja = asynchandler(async (req, res) => {
     const { name, specifications, qna, description, templeIds, based } = req.body;
-    if (!name || !specifications || !qna || !description || !templeIds || !based || !req.file) {
+    if (!name || !specifications || !qna || !description || !templeIds || !based || !req.files) {
         return response.validationError(res, 'Invalid inputs. Please enter all the fields');
     }
-    const uploadedImg = await cloudinary.uploader.upload(req.file.path, {
-        folder: "Bharat One"
-    })
-    const image = uploadedImg.secure_url;
+    var displayImages = [];
+    const uploadFile = async (e) => {
+        const uploadedImg = await cloudinary.uploader.upload(e.path, {
+            folder: "Bharat One"
+        })
+        const obj = { url: uploadedImg.secure_url };
+        console.log(obj)
+        displayImages = [...displayImages, obj]
+
+    }
+    const len = req.files.length;
+    console.log(len)
+    for (let i = 0; i < len; i++) {
+        await uploadFile(req.files[i]);
+    }
+    console.log(displayImages)
+   
     const newPuja = new pujaDB({
         name: name,
         description: description,
@@ -26,7 +39,7 @@ const createOnlinePuja = asynchandler(async (req, res) => {
         based: based,
         mode: "ONLINE",
         templeIds: templeIds.split(","),
-        image: image,
+        displayImages: displayImages
 
     })
     const savedPuja = await newPuja.save();
@@ -40,13 +53,25 @@ const createOnlinePuja = asynchandler(async (req, res) => {
 })
 const createOfflinePuja = asynchandler(async (req, res) => {
     const { name, specifications, qna, description, panditIds, based, inclusions } = req.body;
-    if (!name || !specifications || !qna || !description || !panditIds || !based || !req.file || !inclusions) {
+    if (!name || !specifications || !qna || !description || !panditIds || !based || !req.files || !inclusions) {
         return response.validationError(res, 'Invalid inputs. Please enter all the fields');
     }
-    const uploadedImg = await cloudinary.uploader.upload(req.file.path, {
-        folder: "Bharat One"
-    })
-    const image = uploadedImg.secure_url;
+    var displayImages = [];
+    const uploadFile = async (e) => {
+        const uploadedImg = await cloudinary.uploader.upload(e.path, {
+            folder: "Bharat One"
+        })
+        const obj = { url: uploadedImg.secure_url };
+        console.log(obj)
+        displayImages = [...displayImages, obj]
+
+    }
+    const len = req.files.length;
+    console.log(len)
+    for (let i = 0; i < len; i++) {
+        await uploadFile(req.files[i]);
+    }
+    console.log(displayImages)
     const newPuja = new pujaDB({
         name: name,
         description: description,
@@ -55,7 +80,7 @@ const createOfflinePuja = asynchandler(async (req, res) => {
         based: based,
         mode: "OFFLINE",
         panditIds: panditIds.split(","),
-        image: image,
+        displayImages: displayImages,
         inclusions: inclusions.split(',')
     })
     const savedPuja = await newPuja.save();
@@ -70,13 +95,25 @@ const createOfflinePuja = asynchandler(async (req, res) => {
 
 const createBothPuja = asynchandler(async (req, res) => {
     const { name, specifications, qna, description, panditIds, based, templeIds, inclusions } = req.body;
-    if (!name || !specifications || !qna || !description || !panditIds || !templeIds || !based || !req.file || !inclusions) {
+    if (!name || !specifications || !qna || !description || !panditIds || !templeIds || !based || !req.files || !inclusions) {
         return response.validationError(res, 'Invalid inputs. Please enter all the fields');
     }
-    const uploadedImg = await cloudinary.uploader.upload(req.file.path, {
-        folder: "Bharat One"
-    })
-    const image = uploadedImg.secure_url;
+    var displayImages = [];
+    const uploadFile = async (e) => {
+        const uploadedImg = await cloudinary.uploader.upload(e.path, {
+            folder: "Bharat One"
+        })
+        const obj = { url: uploadedImg.secure_url };
+        console.log(obj)
+        displayImages = [...displayImages, obj]
+
+    }
+    const len = req.files.length;
+    console.log(len)
+    for (let i = 0; i < len; i++) {
+        await uploadFile(req.files[i]);
+    }
+    console.log(displayImages)
     const newPuja = new pujaDB({
         name: name,
         description: description,
@@ -86,7 +123,7 @@ const createBothPuja = asynchandler(async (req, res) => {
         mode: "BOTH",
         panditIds: panditIds.split(","),
         templeIds: templeIds.split(","),
-        image: image,
+        displayImages: displayImages,
         inclusions: inclusions.split(',')
     })
     const savedPuja = await newPuja.save();
@@ -107,7 +144,7 @@ const updatePuja = asynchandler(async (req, res) => {
     const findPuja = await pujaDB.findById({ _id: id });
     if (findPuja) {
         const updateData = {};
-        const { name, specifications, qna, description, panditIds, based, templeIds, mode ,inclusions} = req.body;
+        const { name, specifications, qna, description, panditIds, based, templeIds, mode, inclusions } = req.body;
         if (name) {
             updateData.name = name;
         }
@@ -133,8 +170,27 @@ const updatePuja = asynchandler(async (req, res) => {
             updateData.mode = mode;
         }
 
-        if(inclusions){
-            updateData.inclusions=inclusions.split(",");
+        if (inclusions) {
+            updateData.inclusions = inclusions.split(",");
+        }
+        if (req.files) {
+            var displayImages = [];
+            const uploadFile = async (e) => {
+                const uploadedImg = await cloudinary.uploader.upload(e.path, {
+                    folder: "Bharat One"
+                })
+                const obj = { url: uploadedImg.secure_url };
+                console.log(obj)
+                displayImages = [...displayImages, obj]
+
+            }
+            const len = req.files.length;
+            console.log(len)
+            for (let i = 0; i < len; i++) {
+                await uploadFile(req.files[i]);
+            }
+            console.log(displayImages)
+            updateData.displayImages=displayImages;
         }
         const updatedPuja = await pujaDB.findByIdAndUpdate({ _id: id }, updateData, { new: true });
         if (updatedPuja) {
