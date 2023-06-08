@@ -70,8 +70,8 @@ const addOnlineHistory = asynchandler(async (req, res) => {
 })
 const addOfflineHistory = asynchandler(async (req, res) => {
     const userId = req.user._id;
-    const { address, puja, phone, email, date, time, cost, payment_mode, inclusion, panditId } = req.body;
-    if (!address || !puja || !phone || !email || !date || !time || !cost || !payment_mode || !inclusion || !panditId) {
+    const { address, puja, phone, email, date, time, cost, payment_mode, panditId } = req.body;
+    if (!address || !puja || !phone || !email || !date || !time || !cost || !payment_mode || !panditId) {
         response.validationError(res, 'Please fill in the valid details properly.')
         return;
     }
@@ -86,7 +86,6 @@ const addOfflineHistory = asynchandler(async (req, res) => {
         time: time,
         cost: cost,
         panditId: panditId,
-        inclusion: inclusion,
         payment_mode: payment_mode,
         payment_status: "PENDING",
         order_status: "RESERVED",
@@ -132,7 +131,7 @@ const getAllBookings = asynchandler(async (req, res) => {
     if (mode) {
         queryObj.mode = mode;
     }
-    const allBookings = await pujaCheckoutDB.find(queryObj).populate("templeId").populate("panditId").populate("userId");
+    const allBookings = await pujaCheckoutDB.find(queryObj).populate("templeId").populate("panditId").populate("userId").populate("Puja");
     if (allBookings) {
         response.successResponst(res, allBookings, 'Fetched all data successfully');
     }
@@ -145,7 +144,7 @@ const getAbooking = asynchandler(async (req, res) => {
     if (!id) {
         return response.validationError(res, "Invalid parametes");
     }
-    const findBooking = await pujaCheckoutDB.findById({ _id: id }).populate("templeId").populate("panditId").populate("userId");
+    const findBooking = await pujaCheckoutDB.findById({ _id: id }).populate("templeId").populate("panditId").populate("userId").populate("Puja");
     if (findBooking) {
         response.successResponst(res, findBooking, 'Successfully fetched the required data');
     }
@@ -155,7 +154,8 @@ const getAbooking = asynchandler(async (req, res) => {
 })
 const getUserBookings = asynchandler(async (req, res) => {
     const id = req.user._id;
-    const findAllBookings = await pujaCheckoutDB.find({ userId: id }).populate("templeId").populate("panditId").populate("userId");
+    const findAllBookings = await pujaCheckoutDB.find({ userId: id }).populate("templeId").populate("panditId").populate("userId").populate("Puja")
+        ;
     if (findAllBookings) {
         response.successResponst(res, findAllBookings, "Successfully fetched for the user");
     }

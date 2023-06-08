@@ -26,7 +26,8 @@ const createOnlinePuja = asynchandler(async (req, res) => {
         based: based,
         mode: "ONLINE",
         templeIds: templeIds.split(","),
-        image: image
+        image: image,
+
     })
     const savedPuja = await newPuja.save();
     if (savedPuja) {
@@ -38,8 +39,8 @@ const createOnlinePuja = asynchandler(async (req, res) => {
 
 })
 const createOfflinePuja = asynchandler(async (req, res) => {
-    const { name, specifications, qna, description, panditIds, based } = req.body;
-    if (!name || !specifications || !qna || !description || !panditIds || !based || !req.file) {
+    const { name, specifications, qna, description, panditIds, based, inclusions } = req.body;
+    if (!name || !specifications || !qna || !description || !panditIds || !based || !req.file || !inclusions) {
         return response.validationError(res, 'Invalid inputs. Please enter all the fields');
     }
     const uploadedImg = await cloudinary.uploader.upload(req.file.path, {
@@ -54,7 +55,8 @@ const createOfflinePuja = asynchandler(async (req, res) => {
         based: based,
         mode: "OFFLINE",
         panditIds: panditIds.split(","),
-        image: image
+        image: image,
+        inclusions: inclusions.split(',')
     })
     const savedPuja = await newPuja.save();
     if (savedPuja) {
@@ -67,8 +69,8 @@ const createOfflinePuja = asynchandler(async (req, res) => {
 })
 
 const createBothPuja = asynchandler(async (req, res) => {
-    const { name, specifications, qna, description, panditIds, based, templeIds } = req.body;
-    if (!name || !specifications || !qna || !description || !panditIds || !templeIds || !based || !req.file) {
+    const { name, specifications, qna, description, panditIds, based, templeIds, inclusions } = req.body;
+    if (!name || !specifications || !qna || !description || !panditIds || !templeIds || !based || !req.file || !inclusions) {
         return response.validationError(res, 'Invalid inputs. Please enter all the fields');
     }
     const uploadedImg = await cloudinary.uploader.upload(req.file.path, {
@@ -84,7 +86,8 @@ const createBothPuja = asynchandler(async (req, res) => {
         mode: "BOTH",
         panditIds: panditIds.split(","),
         templeIds: templeIds.split(","),
-        image: image
+        image: image,
+        inclusions: inclusions.split(',')
     })
     const savedPuja = await newPuja.save();
     if (savedPuja) {
@@ -104,7 +107,7 @@ const updatePuja = asynchandler(async (req, res) => {
     const findPuja = await pujaDB.findById({ _id: id });
     if (findPuja) {
         const updateData = {};
-        const { name, specifications, qna, description, panditIds, based, templeIds, mode } = req.body;
+        const { name, specifications, qna, description, panditIds, based, templeIds, mode ,inclusions} = req.body;
         if (name) {
             updateData.name = name;
         }
@@ -128,6 +131,10 @@ const updatePuja = asynchandler(async (req, res) => {
         }
         if (mode) {
             updateData.mode = mode;
+        }
+
+        if(inclusions){
+            updateData.inclusions=inclusions.split(",");
         }
         const updatedPuja = await pujaDB.findByIdAndUpdate({ _id: id }, updateData, { new: true });
         if (updatedPuja) {

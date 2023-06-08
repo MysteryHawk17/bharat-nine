@@ -45,6 +45,7 @@ const pujaSchema = mongoose.Schema({
         enum: ['GOD-GODESSES', 'OCCASION', 'INDIVIDUAL'],
 
     },
+    inclusions:[String]
 })
 
 

@@ -9,7 +9,8 @@ const checkoutSchema = mongoose.Schema({
         type: Object
     },
     puja: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"Puja"
     },
     phone: {
         type: Number,
