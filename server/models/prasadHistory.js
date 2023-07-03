@@ -1,12 +1,12 @@
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
 
-const prasadHistorySchema=mongoose.Schema({
+const prasadHistorySchema = mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
-    email:{
-        type:String
+    email: {
+        type: String
     },
     address: {
         type: Object
@@ -14,13 +14,13 @@ const prasadHistorySchema=mongoose.Schema({
     products: [
         {
             product: {
-                type:mongoose.Schema.Types.ObjectId,
-                ref:"Prasad"
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Prasad"
             },
-            quantity:{
-                type:Number,
-                required:true,
-                default:1
+            quantity: {
+                type: Number,
+                required: true,
+                default: 1
             }
         }
     ],
@@ -40,17 +40,12 @@ const prasadHistorySchema=mongoose.Schema({
         required: true,
         default: "RESERVED",
     },
-    cc_orderId: {
-        type: String,
-        // required: true,
-    },
-    cc_bankRefNo: {
-        type: String,
-        // required: true,
-    },
+    paymentDetails: {
+        type: Object
+    }
 
 })
 
-const prasadHistoryModel=mongoose.model("PrasadHistory",prasadHistorySchema);
+const prasadHistoryModel = mongoose.model("PrasadHistory", prasadHistorySchema);
 
-module.exports=prasadHistoryModel
+module.exports = prasadHistoryModel

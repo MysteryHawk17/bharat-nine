@@ -1,4 +1,4 @@
-const { test, addOnlineHistory, addOfflineHistory, updateStatus, getAllBookings, getAbooking, getUserBookings } = require("../controllers/pujaCheckoutControllers");
+const { test, addOnlineHistory, addOfflineHistory, updateStatus, getAllBookings, getAbooking, getUserBookings, updatePaymentDetails } = require("../controllers/pujaCheckoutControllers");
 
 const router=require("express").Router();
 const {checkLogin}=require("../middlewares/authMiddleware")
@@ -11,5 +11,6 @@ router.patch("/update/:id",updateStatus);
 router.get("/getallbookings",getAllBookings);
 router.get("/getabooking/:id",getAbooking);
 router.get("/getuserbookings",checkLogin,getUserBookings)
+router.put("/updatepaymentdetails/:id",updatePaymentDetails);
 
 module.exports=router;

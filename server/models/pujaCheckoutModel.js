@@ -59,14 +59,9 @@ const checkoutSchema = mongoose.Schema({
         required: true,
         default: "RESERVED",
     },
-    cc_orderId: {
-        type: String,
-        // required: true,
-    },
-    cc_bankRefNo: {
-        type: String,
-        // required: true,
-    },
+    paymentDetails:{
+        type:Object
+    }
 
 
 })

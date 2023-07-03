@@ -131,7 +131,7 @@ const getAllBookings = asynchandler(async (req, res) => {
     if (mode) {
         queryObj.mode = mode;
     }
-    const allBookings = await pujaCheckoutDB.find(queryObj).populate("templeId").populate("panditId").populate("userId").populate("Puja");
+    const allBookings = await pujaCheckoutDB.find(queryObj).populate("templeId").populate("panditId").populate("userId").populate("puja");
     if (allBookings) {
         response.successResponst(res, allBookings, 'Fetched all data successfully');
     }
@@ -144,7 +144,7 @@ const getAbooking = asynchandler(async (req, res) => {
     if (!id) {
         return response.validationError(res, "Invalid parametes");
     }
-    const findBooking = await pujaCheckoutDB.findById({ _id: id }).populate("templeId").populate("panditId").populate("userId").populate("Puja");
+    const findBooking = await pujaCheckoutDB.findById({ _id: id }).populate("templeId").populate("panditId").populate("userId").populate("puja");
     if (findBooking) {
         response.successResponst(res, findBooking, 'Successfully fetched the required data');
     }
@@ -154,7 +154,7 @@ const getAbooking = asynchandler(async (req, res) => {
 })
 const getUserBookings = asynchandler(async (req, res) => {
     const id = req.user._id;
-    const findAllBookings = await pujaCheckoutDB.find({ userId: id }).populate("templeId").populate("panditId").populate("userId").populate("Puja")
+    const findAllBookings = await pujaCheckoutDB.find({ userId: id }).populate("templeId").populate("panditId").populate("userId").populate("puja")
         ;
     if (findAllBookings) {
         response.successResponst(res, findAllBookings, "Successfully fetched for the user");
@@ -190,4 +190,31 @@ const updateStatus = asynchandler(async (req, res) => {
 
 })
 
-module.exports = { test, addOfflineHistory, addOnlineHistory, getAllBookings, getUserBookings, getAbooking, updateStatus }
+const updatePaymentDetails = asynchandler(async (req, res) => {
+    const { id } = req.params;
+    if (id == ":id") {
+        return response.validationError(res, "Cannot find the order details without the id ");
+    }
+    const { payment_status, paymentDetails } = req.body;
+    if (!payment_status || !paymentDetails || (payment_status !== "PENDING" && payment_status !== "COMPLETE" && payment_status !== "FAILED")) {
+        return response.validationError(res, 'Cannot update without proper details');
+    }
+    const findOrder = await pujaCheckoutDB.findById({ _id: id });
+    if (findOrder) {
+        const updatedOrder = await pujaCheckoutDB.findByIdAndUpdate({ _id: id }, {
+            payment_status: payment_status,
+            paymentDetails: paymentDetails
+        }, { new: true });
+        if (updatedOrder) {
+            response.successResponst(res, updatedOrder, "Updated the order successfully")
+        }
+        else {
+            response.internalServerError(res, 'Failed to update the order');
+        }
+    }
+    else {
+        response.notFoundError(res, 'Cannot find the specifed order');
+    }
+})
+
+module.exports = { test, addOfflineHistory, addOnlineHistory, getAllBookings, getUserBookings, getAbooking, updateStatus ,updatePaymentDetails}

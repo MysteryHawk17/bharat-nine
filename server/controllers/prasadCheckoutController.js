@@ -3,7 +3,7 @@ const prasadHistoryDB = require("../models/prasadHistory");
 const userDB = require("../models/userModel");
 const asynchandler = require('express-async-handler')
 const response = require("../middlewares/responseMiddleware");
-const prasadHistoryModel = require("../models/prasadHistory");
+
 
 const test = asynchandler(async (req, res) => {
     response.successResponst(res, '', 'Prasad checkout route established');
@@ -120,5 +120,30 @@ const getPrasadHistory = asynchandler(async (req, res) => {
             // Handle the error appropriately
         });
 })
-
-module.exports = { test, addToCart, prasadCheckout, getPrasadHistory, getCartDetails };
+const updatePaymentDetails = asynchandler(async (req, res) => {
+    const { id } = req.params;
+    if (id == ":id") {
+        return response.validationError(res, "Cannot find the order details without the id ");
+    }
+    const { payment_status, paymentDetails } = req.body;
+    if (!payment_status || !paymentDetails || (payment_status !== "PENDING" && payment_status !== "COMPLETE" && payment_status !== "FAILED")) {
+        return response.validationError(res, 'Cannot update without proper details');
+    }
+    const findOrder = await prasadHistoryDB.findById({ _id: id });
+    if (findOrder) {
+        const updatedOrder = await prasadHistoryDB.findByIdAndUpdate({ _id: id }, {
+            payment_status: payment_status,
+            paymentDetails: paymentDetails
+        }, { new: true });
+        if (updatedOrder) {
+            response.successResponst(res, updatedOrder, "Updated the order successfully")
+        }
+        else {
+            response.internalServerError(res, 'Failed to update the order');
+        }
+    }
+    else {
+        response.notFoundError(res, 'Cannot find the specifed order');
+    }
+})
+module.exports = { test, addToCart, prasadCheckout, getPrasadHistory, getCartDetails ,updatePaymentDetails};
