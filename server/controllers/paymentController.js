@@ -104,7 +104,12 @@ const webhookUrl = asynchandler(async (req, res) => {
         response.successResponst(res, findOrder, 'Updated the order status');
     }
     else {
+        console.log( purpose)
+        console.log(payment_request_id)
+        console.log(status);
+        
         const findOrder = await pujaCheckoutDB.findOne({ payment_request: payment_request_id });
+        console.log(findOrder)
         if (!findOrder) {
             return response.internalServerError(res, 'Cannot update order status after payment');
         }
