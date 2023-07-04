@@ -65,13 +65,13 @@ const handlePayment = asynchandler(async (req, res) => {
         if (purpose == "Prasad") {
             const updatedPrasad = await prasadCheckoutDB.findByIdAndUpdate({ _id: orderId }, {
                 payment_request: requestId
-            })
+            },{new:true})
             console.log(updatedPrasad)
         }
         else {
             const updatedPuja = await pujaCheckoutDB.findByIdAndUpdate({ _id: orderId }, {
                 payment_request: requestId
-            })
+            },{new:true})
             // console.log(linkResponse.data.id)
             console.log(updatedPuja)
         }
