@@ -19,6 +19,7 @@ const templeRoutes = require("./routes/templeRoutes");
 const panditRoutes = require("./routes/panditRoutes");
 const pujaroutes = require("./routes/pujaRoutes");
 const pujaCheckoutRoutes = require("./routes/pujaCheckoutRoutes");
+const paymentRoutes=require("./routes/paymentRoutes");
 //middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -38,6 +39,7 @@ app.use('/api/temple', templeRoutes);
 app.use("/api/pandit", panditRoutes);
 app.use("/api/puja", pujaroutes);
 app.use("/api/checkout/puja", pujaCheckoutRoutes)
+app.use("/api/payment",paymentRoutes);
 //server test route
 app.get("/", (req, res) => {
     res.status(200).json({ message: "bharat-one server is running" })
