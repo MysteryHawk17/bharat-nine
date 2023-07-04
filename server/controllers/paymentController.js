@@ -60,16 +60,17 @@ const handlePayment = asynchandler(async (req, res) => {
             return response.internalServerError(res, 'Cannot generate linkk for payment');
         }
         // console.log(linkResponse.data);
+        const requestId=linkResponse.data.longurl.split("/")[4];
         console.log(linkResponse.data.id)
         if (purpose == "Prasad") {
             const updatedPrasad = await prasadCheckoutDB.findByIdAndUpdate({ _id: orderId }, {
-                payment_request: linkResponse.data.id
+                payment_request: requestId
             })
             console.log(updatedPrasad)
         }
         else {
             const updatedPuja = await pujaCheckoutDB.findByIdAndUpdate({ _id: orderId }, {
-                payment_request: linkResponse.data.id
+                payment_request: requestId
             })
             // console.log(linkResponse.data.id)
             console.log(updatedPuja)
