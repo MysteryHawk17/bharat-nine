@@ -106,6 +106,7 @@ const webhookUrl = asynchandler(async (req, res) => {
     else {
         console.log( purpose)
         console.log(payment_request_id)
+        console.log(typeof(payment_request_id))
         console.log(status);
         
         const findOrder = await pujaCheckoutDB.findOne({ payment_request: payment_request_id });
