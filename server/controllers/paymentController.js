@@ -60,18 +60,18 @@ const handlePayment = asynchandler(async (req, res) => {
             return response.internalServerError(res, 'Cannot generate linkk for payment');
         }
         // console.log(linkResponse.data);
-        const requestId=linkResponse.data.longurl.split("/")[4];
+        const requestId = linkResponse.data.longurl.split("/")[4];
         console.log(linkResponse.data.id)
         if (purpose == "Prasad") {
             const updatedPrasad = await prasadCheckoutDB.findByIdAndUpdate({ _id: orderId }, {
                 payment_request: requestId
-            },{new:true})
+            }, { new: true })
             console.log(updatedPrasad)
         }
         else {
             const updatedPuja = await pujaCheckoutDB.findByIdAndUpdate({ _id: orderId }, {
                 payment_request: requestId
-            },{new:true})
+            }, { new: true })
             // console.log(linkResponse.data.id)
             console.log(updatedPuja)
         }
@@ -104,25 +104,41 @@ const webhookUrl = asynchandler(async (req, res) => {
         response.successResponst(res, findOrder, 'Updated the order status');
     }
     else {
-        console.log( purpose)
+        console.log(purpose)
         console.log(payment_request_id)
-        console.log(typeof(payment_request_id))
+        console.log(typeof (payment_request_id))
         console.log(status);
-        
-        const findOrder = await pujaCheckoutDB.findOne({ payment_request: payment_request_id });
-        console.log(findOrder)
-        if (!findOrder) {
+
+        // const findOrder = await pujaCheckoutDB.findOne({ payment_request: payment_request_id });
+        // console.log(findOrder)
+        try {
+            const findOrder = await pujaCheckoutDB.findOne({ payment_request: payment_request_id });
+            console.log(findOrder)
+            if (status == "Credit") {
+                findOrder.payment_status = "COMPLETE"
+            }
+            else {
+                findOrder.payment_status = "FAILED"
+            }
+            findOrder.paymentDetails = req.body;
+            await findOrder.save();
+            response.successResponst(res, findOrder, 'Updated the order status');
+        } catch (error) {
+            console.log(error)
             return response.internalServerError(res, 'Cannot update order status after payment');
         }
-        if (status == "Credit") {
-            findOrder.payment_status = "COMPLETE"
-        }
-        else {
-            findOrder.payment_status = "FAILED"
-        }
-        findOrder.paymentDetails = req.body;
-        await findOrder.save();
-        response.successResponst(res, findOrder, 'Updated the order status');
+        // if (!findOrder) {
+        //     return response.internalServerError(res, 'Cannot update order status after payment');
+        // }
+        // if (status == "Credit") {
+        //     findOrder.payment_status = "COMPLETE"
+        // }
+        // else {
+        //     findOrder.payment_status = "FAILED"
+        // }
+        // findOrder.paymentDetails = req.body;
+        // await findOrder.save();
+        // response.successResponst(res, findOrder, 'Updated the order status');
     }
 
 })
