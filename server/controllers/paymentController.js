@@ -86,6 +86,7 @@ const handlePayment = asynchandler(async (req, res) => {
 })
 
 const webhookUrl = asynchandler(async (req, res) => {
+    console.log(req.body)
     const { purpose, payment_request_id, status } = req.body;
     if (purpose == "Prasad") {
         const findOrder = await prasadCheckoutDB.findOne({ payment_request: payment_request_id });
