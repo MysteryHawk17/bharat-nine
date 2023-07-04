@@ -4,8 +4,8 @@ const asynchandler = require('express-async-handler');
 
 
 const handlePayment = asynchandler(async (req, res) => {
-    const { amount, purpose, buyer_name, email, phone, redirect_url } = req.body;
-    if (amount == undefined || amount == null || !purpose || !buyer_name || !email || !phone || !redirect_url) {
+    const { amount, purpose, buyer_name, email, phone, redirect_url, weburl } = req.body;
+    if (amount == undefined || amount == null || !purpose || !buyer_name || !email || !phone || !redirect_url || !weburl) {
         return response.validationError(res, 'All the details are required');
     }
 
@@ -39,6 +39,7 @@ const handlePayment = asynchandler(async (req, res) => {
     encodedParams2.set('email', email);
     encodedParams2.set('phone', phone);
     encodedParams2.set('redirect_url', redirect_url);
+    encodedParams2.set('webhook', weburl);
 
     const options2 = {
         method: 'POST',
@@ -50,16 +51,26 @@ const handlePayment = asynchandler(async (req, res) => {
         },
         data: encodedParams2,
     };
-    const linkResponse = await axios.request(options2);
-    if (!linkResponse) {
-        return response.internalServerError(res, 'Cannot generate linkk for payment');
+    try {
+
+        const linkResponse = await axios.request(options2);
+        if (!linkResponse) {
+            return response.internalServerError(res, 'Cannot generate linkk for payment');
+        }
+        console.log(linkResponse.data);
+        console.log(linkResponse.data.longurl)
+        response.successResponst(res, linkResponse.data, 'Successfully generated the payment link');
+    } catch (error) {
+        console.log(error)
     }
-    console.log(linkResponse.data);
-    console.log(linkResponse.data.longurl)
-    response.successResponst(res, linkResponse.data, 'Successfully generated the payment link');
+
+
 
 
 })
 
+const webhookUrl = asynchandler(async (req, res) => {   
+        console.log(req.body);
 
-module.exports = { handlePayment }
+})
+module.exports = { handlePayment, webhookUrl }
