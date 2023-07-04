@@ -42,6 +42,10 @@ const prasadHistorySchema = mongoose.Schema({
     },
     paymentDetails: {
         type: Object
+    },
+
+    payment_request: {
+        type: String
     }
 
 })

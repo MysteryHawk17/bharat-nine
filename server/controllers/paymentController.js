@@ -1,11 +1,13 @@
 const axios = require('axios');
+const pujaCheckoutDB = require("../models/pujaCheckoutModel");
+const prasadCheckoutDB = require("../models/prasadHistory");
 const response = require("../middlewares/responseMiddleware");
 const asynchandler = require('express-async-handler');
 
 
 const handlePayment = asynchandler(async (req, res) => {
-    const { amount, purpose, buyer_name, email, phone, redirect_url, weburl } = req.body;
-    if (amount == undefined || amount == null || !purpose || !buyer_name || !email || !phone || !redirect_url || !weburl) {
+    const { amount, purpose, buyer_name, email, phone, redirect_url, orderId } = req.body;
+    if (amount == undefined || amount == null || !purpose || !buyer_name || !email || !phone || !redirect_url) {
         return response.validationError(res, 'All the details are required');
     }
 
@@ -39,7 +41,7 @@ const handlePayment = asynchandler(async (req, res) => {
     encodedParams2.set('email', email);
     encodedParams2.set('phone', phone);
     encodedParams2.set('redirect_url', redirect_url);
-    encodedParams2.set('webhook', weburl);
+    encodedParams2.set('webhook', 'https://bharat-nine-zeta.vercel.app/api/payment/webhookurl');
 
     const options2 = {
         method: 'POST',
@@ -57,8 +59,21 @@ const handlePayment = asynchandler(async (req, res) => {
         if (!linkResponse) {
             return response.internalServerError(res, 'Cannot generate linkk for payment');
         }
-        console.log(linkResponse.data);
-        console.log(linkResponse.data.longurl)
+        // console.log(linkResponse.data);
+        console.log(linkResponse.data.id)
+        if (purpose == "Prasad") {
+            const updatedPrasad = await prasadCheckoutDB.findByIdAndUpdate({ _id: orderId }, {
+                payment_request: linkResponse.data.id
+            })
+            console.log(updatedPrasad)
+        }
+        else {
+            const updatedPuja = await pujaCheckoutDB.findByIdAndUpdate({ _id: orderId }, {
+                payment_request: linkResponse.data.id
+            })
+            // console.log(linkResponse.data.id)
+            console.log(updatedPuja)
+        }
         response.successResponst(res, linkResponse.data, 'Successfully generated the payment link');
     } catch (error) {
         console.log(error)
@@ -69,8 +84,38 @@ const handlePayment = asynchandler(async (req, res) => {
 
 })
 
-const webhookUrl = asynchandler(async (req, res) => {   
-        console.log(req.body);
+const webhookUrl = asynchandler(async (req, res) => {
+    const { purpose, payment_request_id, status } = req.body;
+    if (purpose == "Prasad") {
+        const findOrder = await prasadCheckoutDB.findOne({ payment_request: payment_request_id });
+        if (!findOrder) {
+            return response.internalServerError(res, 'Cannot update order status after payment');
+        }
+        if (status == "Credit") {
+            findOrder.payment_status = "COMPLETE"
+        }
+        else {
+            findOrder.payment_status = "FAILED"
+        }
+        findOrder.paymentDetails = req.body;
+        await findOrder.save();
+        response.successResponst(res, findOrder, 'Updated the order status');
+    }
+    else {
+        const findOrder = await pujaCheckoutDB.findOne({ payment_request: payment_request_id });
+        if (!findOrder) {
+            return response.internalServerError(res, 'Cannot update order status after payment');
+        }
+        if (status == "Credit") {
+            findOrder.payment_status = "COMPLETE"
+        }
+        else {
+            findOrder.payment_status = "FAILED"
+        }
+        findOrder.paymentDetails = req.body;
+        await findOrder.save();
+        response.successResponst(res, findOrder, 'Updated the order status');
+    }
 
 })
 module.exports = { handlePayment, webhookUrl }
