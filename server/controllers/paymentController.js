@@ -4,8 +4,8 @@ const asynchandler = require('express-async-handler');
 
 
 const handlePayment = asynchandler(async (req, res) => {
-    const { amount, purpose, buyer_name, email, phone } = req.body;
-    if (amount==undefined||amount==null || !purpose || !buyer_name || !email || !phone) {
+    const { amount, purpose, buyer_name, email, phone,redirect_url } = req.body;
+    if (amount==undefined||amount==null || !purpose || !buyer_name || !email || !phone||!redirect_url) {
         return responst.validationError(res, 'All the details are required');
     }
     const { data } = await sdk.generateAccessTokenApplicationBasedAuthentication({
@@ -26,6 +26,7 @@ const handlePayment = asynchandler(async (req, res) => {
         purpose: purpose,
         buyer_name: buyer_name,
         email: email,
+        redirect_url:redirect_url,
         phone: phone
     }, { accept: 'application/json' })
 
