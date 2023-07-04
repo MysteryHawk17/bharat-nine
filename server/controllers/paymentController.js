@@ -1,41 +1,62 @@
-const sdk = require('api')('@instamojo/v2#40d2ktblgmqonaz');
-const responst = require("../middlewares/responseMiddleware");
+const axios = require('axios');
+const response = require("../middlewares/responseMiddleware");
 const asynchandler = require('express-async-handler');
 
 
 const handlePayment = asynchandler(async (req, res) => {
-    const { amount, purpose, buyer_name, email, phone,redirect_url } = req.body;
-    if (amount==undefined||amount==null || !purpose || !buyer_name || !email || !phone||!redirect_url) {
-        return responst.validationError(res, 'All the details are required');
+    const { amount, purpose, buyer_name, email, phone, redirect_url } = req.body;
+    if (amount == undefined || amount == null || !purpose || !buyer_name || !email || !phone || !redirect_url) {
+        return response.validationError(res, 'All the details are required');
     }
-    const { data } = await sdk.generateAccessTokenApplicationBasedAuthentication({
-        grant_type: 'client_credentials',
-        client_id: process.env.INSTAMOJO_CLIENT_ID,
-        client_secret:process.env.INSTAMOJO_CLIENT_SECRET
-    }, { accept: 'application/json' });
-    if (!data) {
 
-        return responst.internalServerError(res, "Cannot henerate the client token");
+    const encodedParams = new URLSearchParams();
+    encodedParams.set('grant_type', 'client_credentials');
+    encodedParams.set('client_id', process.env.INSTAMOJO_CLIENT_ID,);
+    encodedParams.set('client_secret', process.env.INSTAMOJO_CLIENT_SECRET);
+
+    const options1 = {
+        method: 'POST',
+        url: 'https://api.instamojo.com/oauth2/token/',
+        headers: {
+            accept: 'application/json',
+            'content-type': 'application/x-www-form-urlencoded'
+        },
+        data: encodedParams,
+    };
+    const tokenResponse = await axios.request(options1);
+    if (!tokenResponse) {
+        return response.internalServerError(res, 'Cannot generate token');
     }
-    const token = data.access_token;
-    await sdk.auth(`Bearer ${token}`);
-    const response = await sdk.createAPaymentRequest1({
-        allow_repeated_payments: false,
-        send_email: true,
-        amount: amount,
-        purpose: purpose,
-        buyer_name: buyer_name,
-        email: email,
-        redirect_url:redirect_url,
-        phone: phone
-    }, { accept: 'application/json' })
+    // console.log(tokenResponse);
+    const token = tokenResponse.data.access_token;
+    console.log(token)
+    const encodedParams2 = new URLSearchParams();
+    encodedParams2.set('allow_repeated_payments', 'false');
+    encodedParams2.set('send_email', 'true');
+    encodedParams2.set('amount', amount);
+    encodedParams2.set('purpose', purpose);
+    encodedParams2.set('buyer_name', buyer_name);
+    encodedParams2.set('email', email);
+    encodedParams2.set('phone', phone);
+    encodedParams2.set('redirect_url', redirect_url);
 
-    if(!response){
-        return responst.internalServerError(res,"Failed to generate the payment link");
+    const options2 = {
+        method: 'POST',
+        url: 'https://api.instamojo.com/v2/payment_requests/',
+        headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+            'content-type': 'application/x-www-form-urlencoded'
+        },
+        data: encodedParams2,
+    };
+    const linkResponse = await axios.request(options2);
+    if (!linkResponse) {
+        return response.internalServerError(res, 'Cannot generate linkk for payment');
     }
-    console.log(response.data.longurl)
-    responst.successResponst(res,response.data,'Successfully generated the payment link')
-
+    console.log(linkResponse.data);
+    console.log(linkResponse.data.longurl)
+    response.successResponst(res, linkResponse.data, 'Successfully generated the payment link');
 
 
 })
